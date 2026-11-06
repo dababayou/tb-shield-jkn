@@ -1,3 +1,11 @@
+# Environment variables (jangan di-commit ke git)
+.env
+.env.local
+.env.production
+
+# Reference project
+NutriWise/
+
 # Logs
 logs
 *.log

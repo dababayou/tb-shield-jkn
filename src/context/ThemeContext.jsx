@@ -3,54 +3,29 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
-    // 1. Check saved preference in localStorage
-    const saved = localStorage.getItem('nutriwise_theme');
-    if (saved === 'dark' || saved === 'light') {
-      return saved;
-    }
-    // 2. Fallback to system preference
-    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    return 'light';
-  });
+  // Selalu default ke 'light' mode (tidak menggunakan prefers-color-scheme)
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
-    // Sync with HTML root attribute & body class
     const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
-    if (theme === 'dark') {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
-    localStorage.setItem('nutriwise_theme', theme);
-  }, [theme]);
-
-  // Listen to system theme changes if user has not explicitly chosen
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      const saved = localStorage.getItem('nutriwise_theme');
-      if (!saved) {
-        setTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    root.setAttribute('data-theme', 'light');
+    document.body.classList.remove('dark-theme');
+    try {
+      localStorage.setItem('tbshield_theme', 'light');
+      localStorage.removeItem('nutriwise_theme');
+    } catch {
+      // ignore
     }
   }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    // Mode gelap dinonaktifkan sesuai kebutuhan desain
   };
 
-  const isDark = theme === 'dark';
+  const isDark = false;
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme: 'light', isDark, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

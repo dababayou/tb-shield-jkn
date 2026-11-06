@@ -24,11 +24,11 @@ export default function AuthPage({ initialMode = 'login', onBackHome, onAuthSucc
         setTimeout(() => {
           const mockUser = {
             id: 'demo-user-123',
-            email: email || 'demo@nutriwise.id',
+            email: email || 'demo@tbshield.id',
             user_metadata: { 
-              full_name: fullName || email.split('@')[0] || 'Pengguna NutriWise',
-              NutriWise_days: [],
-              NutriWise_today_habits: {}
+              full_name: fullName || email.split('@')[0] || 'Pengguna TB-Shield',
+              tbshield_days: [],
+              tbshield_today_habits: {}
             }
           };
           setSuccessMsg('Berhasil masuk mode demo!');
@@ -105,7 +105,7 @@ export default function AuthPage({ initialMode = 'login', onBackHome, onAuthSucc
             <div className={`auth-form-panel auth-form-login ${isLogin ? 'panel-active' : 'panel-hidden'}`}>
               <div className="auth-form-side">
                 <h1 className="auth-form-title">Masuk</h1>
-                <p className="auth-form-subtitle">Gunakan akun NutriWise Anda</p>
+                <p className="auth-form-subtitle">Gunakan akun TB-Shield JKN Anda</p>
 
                 {!isSupabaseConfigured && (
                   <div className="auth-alert alert-demo">
@@ -256,9 +256,9 @@ export default function AuthPage({ initialMode = 'login', onBackHome, onAuthSucc
               {/* Right overlay panel — visible when in Login mode (overlay sits right) */}
               <div className={`auth-overlay-panel overlay-panel-right ${isLogin ? 'overlay-panel-active' : ''}`}>
                 <div className="banner-content">
-                  <h2 className="banner-title">Halo, Sahabat NutriWise!</h2>
+                  <h2 className="banner-title">Halo, Sahabat TB-Shield!</h2>
                   <p className="banner-text">
-                    Daftar dengan data diri Anda untuk menggunakan seluruh fitur pelacak nutrisi &amp; kesehatan
+                    Daftar dengan data diri Anda untuk menggunakan seluruh fitur skrining, imunonutrisi, dan tiket rujukan
                   </p>
                   <button
                     type="button"

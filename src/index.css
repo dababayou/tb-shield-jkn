@@ -1,5 +1,6 @@
 /* TB-Shield JKN Global Design Tokens matching feature brief.md */
 :root {
+  color-scheme: light;
   --color-cream: #F5F0E9;
   --color-lime: #E0C58F;
   --color-gold: #E0C58F;

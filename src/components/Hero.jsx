@@ -59,6 +59,9 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
       overflow: 'hidden',
       background: 'radial-gradient(circle at 80% 20%, rgba(224, 197, 143, 0.25) 0%, rgba(245, 240, 233, 0.8) 50%, #F5F0E9 100%)'
     }}>
+      {/* Texture Background Overlay (bghero.jpeg dengan transparansi 60-70%) */}
+      <div className="hero-texture-overlay" />
+
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div className="hero-grid-layout">
           {/* Left Column: Text & Hero Content */}

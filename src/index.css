@@ -447,6 +447,22 @@ h1, h2, h3, h4, .font-serif {
   z-index: 1;
 }
 
+/* Hero Texture Background Overlay (bghero.jpeg dengan transparansi 60-70%) */
+.hero-texture-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/bghero.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.50;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .hero-main-container {
   position: relative;
   z-index: 2;

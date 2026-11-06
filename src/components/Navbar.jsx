@@ -295,6 +295,7 @@ export default function Navbar({ onOpenPrivacy, onOpenPatientSafety, onOpenAuth 
                   setCurrentView('dashboard');
                   window.location.hash = '#dashboard';
                 }}
+                className="nav-btn-dashboard"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -441,9 +442,10 @@ export default function Navbar({ onOpenPrivacy, onOpenPatientSafety, onOpenAuth 
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="nav-auth-login" style={{ gap: '8px' }}>
               <button
                 onClick={() => handleOpenAuthModal('user', 'login')}
+                className="btn-nav-auth"
                 style={{
                   background: 'var(--color-navy)',
                   color: '#FFFFFF',

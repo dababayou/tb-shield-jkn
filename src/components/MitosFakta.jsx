@@ -60,11 +60,8 @@ export default function MitosFakta({ isDashboard = false }) {
   return (
     <section
       id="mitos-fakta"
-      className="container"
-      style={{
-        padding: isDashboard ? '20px 24px 60px' : '60px 24px 80px',
-        overflow: 'visible'
-      }}
+      className={`container ${isDashboard ? 'nw-calc-dashboard-sec' : 'section'}`}
+      style={isDashboard ? { padding: '20px 24px 60px' } : { overflow: 'visible' }}
     >
       {/* Title & Description */}
       {!isDashboard && (

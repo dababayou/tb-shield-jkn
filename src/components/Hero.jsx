@@ -13,7 +13,7 @@ import {
 import { useTBShield } from '../context/TBShieldContext';
 
 export default function Hero({ onOpenAuth, onStartScreening }) {
-  const { currentUser, setCurrentView, setAuthRole, setActiveTab } = useTBShield();
+  const { currentUser, setCurrentView, setAuthRole, setActiveTab, setAuthMode } = useTBShield();
 
   const handleStart = () => {
     if (currentUser) {
@@ -40,99 +40,57 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
     }
   };
 
+  const handleMobileAuthClick = () => {
+    if (currentUser) {
+      setCurrentView('dashboard');
+      window.location.hash = '#dashboard';
+    } else if (onOpenAuth) {
+      setAuthRole('user');
+      if (setAuthMode) setAuthMode('login');
+      onOpenAuth();
+    }
+  };
+
   return (
     <section className="hero-section" style={{
-      padding: '120px 0 80px',
+      padding: '100px 0 70px',
       position: 'relative',
       overflow: 'hidden',
       background: 'radial-gradient(circle at 80% 20%, rgba(224, 197, 143, 0.25) 0%, rgba(245, 240, 233, 0.8) 50%, #F5F0E9 100%)'
     }}>
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          alignItems: 'center',
-          gap: '48px'
-        }}>
-          {/* Left Column: Text & CTAs */}
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <span className="badge-tb-jkn">
+        <div className="hero-grid-layout">
+          {/* Left Column: Text & Hero Content */}
+          <div className="hero-text-content">
+            <div className="hero-badges-wrapper">
+              <span className="badge-tb-jkn hero-badge-inovasi">
                 <ShieldCheck size={14} color="var(--color-primary)" /> Inovasi Preventif Kontak Serumah TBC
               </span>
-              <span className="badge-demo-tag">
+              <span className="badge-demo-tag hero-badge-pdp">
                 Kepatuhan UU PDP No. 27/2022
               </span>
             </div>
 
-            <h1 style={{
-              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
-              fontWeight: 800,
-              color: 'var(--color-navy)',
-              lineHeight: 1.15,
-              letterSpacing: '-0.02em',
-              marginBottom: '18px'
-            }}>
+            <h1 className="hero-main-title">
               Perlindungan Presisi Kontak Erat TBC dengan Strategi Preventif Terintegrasi
             </h1>
 
-            <p style={{
-              fontSize: '1.08rem',
-              color: '#3F4E65',
-              lineHeight: 1.65,
-              marginBottom: '32px',
-              maxWidth: '560px'
-            }}>
+            <p className="hero-lead-desc">
               Teleskrining risiko epidemiologis dari rumah, teletriase akustik batuk berbasis AI, imunonutrisi pangan lokal (kelor, ikan kembung, jamur, telur), dan sinkronisasi tiket rujukan digital ke FKTP P-Care BPJS Kesehatan.
             </p>
 
-            {/* Main Action Buttons */}
-            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '36px' }}>
+            {/* Tombol Masuk / Daftar khusus Mobile <= 425px (menggantikan tombol header) */}
+            <div className="hero-mobile-auth-wrapper">
               <button
-                onClick={handleStart}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  background: 'linear-gradient(135deg, #112250 0%, #3C507D 100%)',
-                  color: '#FFFFFF',
-                  padding: '14px 30px',
-                  borderRadius: '50px',
-                  fontWeight: 800,
-                  fontSize: '1rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 28px rgba(17, 34, 80, 0.25)',
-                  transition: 'all 0.2s ease'
-                }}
+                onClick={handleMobileAuthClick}
+                className="hero-btn-mobile-auth"
               >
-                <Activity size={20} /> Mulai Skrining Mandiri (Privat) <ArrowRight size={18} />
-              </button>
-
-              <button
-                onClick={handleGoStaff}
-                className="btn-cta-outline"
-                style={{
-                  padding: '12px 24px',
-                  height: '52px',
-                  fontSize: '0.95rem',
-                  borderWidth: '2px',
-                  borderColor: 'var(--color-navy)',
-                  color: 'var(--color-navy)'
-                }}
-              >
-                <Building2 size={18} style={{ marginRight: '8px' }} /> Portal Petugas FKTP
+                {currentUser ? `Buka Dasbor ${currentUser.role === 'staff' ? 'Petugas' : 'Saya'} →` : 'Masuk / Daftar'}
               </button>
             </div>
 
             {/* Quick Micro-Stats */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '16px',
-              paddingTop: '24px',
-              borderTop: '1px solid #D9CBC2'
-            }}>
+            <div className="hero-micro-stats">
               <div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-navy)', fontFamily: 'var(--font-mono)' }}>
                   0 – 10
@@ -161,7 +119,7 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
           </div>
 
           {/* Right Column: Hero Visual Card (Interactive Preview) */}
-          <div style={{ position: 'relative' }}>
+          <div className="hero-preview-col" style={{ position: 'relative', width: '100%' }}>
             {/* Main Interactive Floating Card */}
             <div style={{
               background: '#FFFFFF',
@@ -170,7 +128,10 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
               boxShadow: '0 24px 60px rgba(17, 34, 80, 0.15)',
               padding: '28px',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              maxWidth: '460px',
+              width: '100%',
+              margin: '0 auto'
             }}>
               {/* Card Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
@@ -288,10 +249,12 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
             </div>
 
             {/* Decorative Floating Pill */}
-            <div style={{
-              position: 'absolute',
-              bottom: '-16px',
-              left: '-16px',
+            <div
+              className="hero-floating-pill"
+              style={{
+                position: 'absolute',
+                bottom: '-16px',
+                left: '-16px',
               background: '#FFFFFF',
               border: '1px solid #D9CBC2',
               borderRadius: '50px',

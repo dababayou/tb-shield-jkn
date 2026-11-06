@@ -1,0 +1,661 @@
+import React, { useState, useEffect } from 'react';
+import { ClipboardCheck, CheckCircle2, AlertTriangle, ArrowRight, ArrowLeft, RotateCcw, Activity, Heart, ShieldAlert, Zap, Info, Lock, Calculator, Home, X, LogOut } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
+// 9 Questions (Q2 through Q10 from document; Q1 BMI is auto-pulled from Kalkulator)
+const quizQuestions = [
+  {
+    id: 'veggies',
+    category: 'Pola Makan',
+    categoryLabel: 'B. Pola Makan & Konsumsi Harian',
+    question: '1. Seberapa sering Anda makan sayur dan buah dalam seminggu?',
+    options: [
+      { text: 'Setiap hari (≥5 porsi / hari)', points: 0, trigger: null },
+      { text: '3–6 hari seminggu', points: 1, trigger: null },
+      { text: '1–2 hari seminggu', points: 2, trigger: 'Q2' },
+      { text: 'Hampir tidak pernah', points: 3, trigger: 'Q2' }
+    ]
+  },
+  {
+    id: 'sweet_drinks',
+    category: 'Pola Makan',
+    categoryLabel: 'B. Pola Makan & Konsumsi Harian',
+    question: '2. Seberapa sering Anda minum minuman manis (boba, soda, kopi manis, teh kemasan)?',
+    options: [
+      { text: 'Jarang / tidak pernah', points: 0, trigger: null },
+      { text: '1–2x seminggu', points: 1, trigger: null },
+      { text: '3–5x seminggu', points: 2, trigger: 'Q3' },
+      { text: 'Hampir tiap hari', points: 4, trigger: 'Q3' }
+    ]
+  },
+  {
+    id: 'fast_food',
+    category: 'Pola Makan',
+    categoryLabel: 'B. Pola Makan & Konsumsi Harian',
+    question: '3. Seberapa sering Anda makan gorengan atau makanan cepat saji (fast food)?',
+    options: [
+      { text: 'Jarang / tidak pernah', points: 0, trigger: null },
+      { text: '1–2x seminggu', points: 1, trigger: null },
+      { text: '3–5x seminggu', points: 2, trigger: 'Q4' },
+      { text: 'Hampir tiap hari', points: 4, trigger: 'Q4' }
+    ]
+  },
+  {
+    id: 'salty_food',
+    category: 'Pola Makan',
+    categoryLabel: 'B. Pola Makan & Konsumsi Harian',
+    question: '4. Seberapa sering Anda menambahkan garam/kecap/penyedap ekstra ke makanan?',
+    options: [
+      { text: 'Jarang / tidak pernah', points: 0, trigger: null },
+      { text: 'Kadang-kadang', points: 1, trigger: null },
+      { text: 'Hampir selalu', points: 2, trigger: 'Q5' }
+    ]
+  },
+  {
+    id: 'activity',
+    category: 'Aktivitas Fisik',
+    categoryLabel: 'C. Aktivitas Fisik',
+    question: '5. Berapa hari dalam seminggu Anda beraktivitas fisik minimal 30 menit (jalan cepat, olahraga)?',
+    options: [
+      { text: '5 hari atau lebih (Memenuhi standar WHO 150 mnt/minggu)', points: 0, trigger: null },
+      { text: '3–4 hari', points: 1, trigger: null },
+      { text: '1–2 hari', points: 2, trigger: 'Q6' },
+      { text: 'Hampir tidak pernah', points: 4, trigger: 'Q6' }
+    ]
+  },
+  {
+    id: 'family_history',
+    category: 'Riwayat Risiko',
+    categoryLabel: 'D. Riwayat & Faktor Risiko Tambahan',
+    question: '6. Apakah ada keluarga inti (orang tua/saudara) dengan riwayat diabetes, hipertensi, atau jantung?',
+    options: [
+      { text: 'Tidak ada', points: 0, trigger: null },
+      { text: 'Ada 1 jenis penyakit', points: 2, trigger: 'Q7' },
+      { text: 'Ada lebih dari 1 jenis penyakit', points: 4, trigger: 'Q7' }
+    ]
+  },
+  {
+    id: 'smoking',
+    category: 'Riwayat Risiko',
+    categoryLabel: 'D. Riwayat & Faktor Risiko Tambahan',
+    question: '7. Apakah Anda merokok aktif atau sering terpapar asap rokok (perokok pasif)?',
+    options: [
+      { text: 'Tidak keduanya', points: 0, trigger: null },
+      { text: 'Perokok pasif saja', points: 2, trigger: 'Q8' },
+      { text: 'Perokok aktif', points: 4, trigger: 'Q8' }
+    ]
+  },
+  {
+    id: 'sleep',
+    category: 'Riwayat Risiko',
+    categoryLabel: 'D. Riwayat & Faktor Risiko Tambahan',
+    question: '8. Berapa jam rata-rata Anda tidur per malam?',
+    options: [
+      { text: '7–8 jam (Durasi optimal)', points: 0, trigger: null },
+      { text: '6 jam atau ≥9 jam', points: 1, trigger: null },
+      { text: '< 6 jam', points: 2, trigger: 'Q9' }
+    ]
+  },
+  {
+    id: 'stress',
+    category: 'Riwayat Risiko',
+    categoryLabel: 'D. Riwayat & Faktor Risiko Tambahan',
+    question: '9. Bagaimana Anda menilai tingkat stres dalam keseharian (kerja/kuliah)?',
+    options: [
+      { text: 'Rendah (jarang merasa tertekan)', points: 0, trigger: null },
+      { text: 'Sedang (kadang tertekan)', points: 1, trigger: null },
+      { text: 'Tinggi (sering merasa tertekan)', points: 3, trigger: 'Q10' }
+    ]
+  }
+];
+
+const focusAdviceBank = {
+  Q1: 'turunkan berat badan bertahap 0,5–1 kg/minggu lewat kombinasi pola makan gizi seimbang dan olahraga teratur',
+  Q2: 'tambah porsi sayur dan buah minimal 3–5 porsi/hari untuk mencukupi serat & antioksidan',
+  Q3: 'kurangi minuman manis (boba, soda, kopi kekinian) menjadi maksimal 1–2x/minggu',
+  Q4: 'batasi makanan gorengan dan cepat saji, ganti dengan pilihan yang dikukus, direbus, atau dipanggang',
+  Q5: 'kurangi tambahan garam/kecap/penyedap masakan untuk mengontrol tekanan darah & natrium',
+  Q6: 'tingkatkan aktivitas fisik minimal 30 menit ke 5 hari/minggu, dimulai dari jalan cepat rutin',
+  Q7: 'karena ada riwayat keluarga, lakukan skrining kesehatan rutin (gula darah, tekanan darah) secara berkala',
+  Q8: 'pertimbangkan berhenti merokok dan batasi paparan lingkungan asap rokok pasif',
+  Q9: 'perbaiki durasi tidur ke 7–8 jam/malam dengan jadwal waktu tidur yang teratur',
+  Q10: 'kelola tingkat stres dengan teknik relaksasi, olahraga ringan, atau istirahat cukup'
+};
+
+const recommendedTargetsBank = {
+  Q1: { id: 'rec_weight', text: 'Olahraga Kardio Ringan', type: 'quantitative', unit: 'Menit', targetVal: 30, minGood: 30, maxGood: 120, icon: 'Flame', frequency: 'daily' },
+  Q2: { id: 'rec_veggies', text: 'Makan minimal 3 porsi sayur & buah', type: 'quantitative', unit: 'Porsi', targetVal: 3, minGood: 3, maxGood: 8, icon: 'Salad', frequency: 'daily' },
+  Q3: { id: 'rec_nosugar', text: 'Bebas Minuman Manis & Boba', type: 'boolean', targetVal: 1, icon: 'Ban', frequency: 'daily' },
+  Q4: { id: 'rec_nofastfood', text: 'Bebas Gorengan & Fast Food', type: 'boolean', targetVal: 1, icon: 'Ban', frequency: 'daily' },
+  Q5: { id: 'rec_nosalt', text: 'Batasi Tambahan Garam/Kecap Ekstra', type: 'boolean', targetVal: 1, icon: 'Ban', frequency: 'daily' },
+  Q6: { id: 'rec_workout', text: 'Olahraga Intensitas Sedang', type: 'quantitative', unit: 'Menit', targetVal: 30, minGood: 30, maxGood: 150, icon: 'Activity', frequency: 'daily' },
+  Q8: { id: 'rec_nosmoking', text: 'Bebas Rokok Aktif / Hindari Asap', type: 'boolean', targetVal: 1, icon: 'Ban', frequency: 'daily' },
+  Q9: { id: 'rec_sleep', text: 'Tidur Berkualitas 7-8 Jam', type: 'quantitative', unit: 'Jam', targetVal: 7.5, minGood: 7, maxGood: 9, icon: 'Moon', frequency: 'daily' },
+  Q10: { id: 'rec_relax', text: 'Waktu Relaksasi/Me-Time (Tanpa Layar)', type: 'quantitative', unit: 'Menit', targetVal: 15, minGood: 15, maxGood: 60, icon: 'Heart', frequency: 'daily' }
+};
+
+export default function KuisSkrining({ currentUser, onNavigateToCalc }) {
+  const [currentStep, setCurrentStep] = useState(0); // 0 = Intro, 1..9 = questions, 10 = Result
+  const [answers, setAnswers] = useState({});
+  const [savedQuizResult, setSavedQuizResult] = useState(null);
+  const [userBmiData, setUserBmiData] = useState(null);
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
+
+  // Load existing BMI and quiz result from user metadata or local storage
+  useEffect(() => {
+    if (!currentUser) {
+      setUserBmiData(null);
+      setSavedQuizResult(null);
+      setAnswers({});
+      setCurrentStep(0);
+      return;
+    }
+
+    const meta = currentUser.user_metadata || {};
+    const uid = currentUser.id;
+    const bmiKey = `NutriWise_bmi_data_${uid}`;
+    const quizKey = `NutriWise_quiz_result_${uid}`;
+    
+    // Load BMI Data
+    const bmiData = meta.NutriWise_bmi_data || JSON.parse(localStorage.getItem(bmiKey) || 'null');
+    setUserBmiData(bmiData);
+
+    // Load Quiz Result
+    const cloudQuiz = meta.NutriWise_quiz_result;
+    const localQuiz = JSON.parse(localStorage.getItem(quizKey) || 'null');
+    const existingResult = cloudQuiz || localQuiz;
+    setSavedQuizResult(existingResult);
+
+    // Keep result view (10) if quiz is finished or currently on step 10, otherwise retain current question
+    setCurrentStep((prevStep) => {
+      if (prevStep === 10 || existingResult) {
+        return 10;
+      }
+      return prevStep > 0 ? prevStep : 0;
+    });
+  }, [currentUser]);
+
+  const handleSelectOption = (questionIndex, option) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionIndex]: option
+    }));
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < quizQuestions.length) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      calculateAndShowResult();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const calculateAndShowResult = async () => {
+    // Start with auto-pulled BMI points
+    const bmiPoints = userBmiData?.points || 0;
+    let totalScore = bmiPoints;
+    const triggers = [];
+
+    if (bmiPoints > 0) {
+      triggers.push('Q1');
+    }
+
+    // Sub-categories scores
+    let metabolicPoints = bmiPoints; // Auto Q1 + Q2 (sweets) + Q5 (activity)
+    let cardioPoints = 0;           // Q3 (fast food) + Q4 (salt) + Q7 (smoking) + Q9 (stress)
+    let lifestylePoints = 0;        // Q6 (family) + Q8 (sleep)
+
+    Object.keys(answers).forEach((idxStr) => {
+      const idx = parseInt(idxStr);
+      const opt = answers[idx];
+      if (opt) {
+        totalScore += opt.points;
+        if (opt.trigger) {
+          triggers.push(opt.trigger);
+        }
+
+        if (idx === 0 || idx === 1 || idx === 4) metabolicPoints += opt.points;
+        if (idx === 2 || idx === 3 || idx === 6 || idx === 8) cardioPoints += opt.points;
+        if (idx === 5 || idx === 7) lifestylePoints += opt.points;
+      }
+    });
+
+    let category = 'Risiko Rendah';
+    let colorClass = 'green';
+    let badgeColor = '#10B981';
+    let summaryText = 'Gaya hidup Anda secara umum sudah sangat baik dalam mendukung kesehatan metabolik.';
+
+    if (totalScore >= 30) {
+      category = 'Risiko Sangat Tinggi';
+      colorClass = 'red';
+      badgeColor = '#EF4444';
+      summaryText = 'Faktor risiko multipel & kuat terdeteksi. Disarankan melakukan pemeriksaan lanjutan ke dokter/tenaga kesehatan.';
+    } else if (totalScore >= 20) {
+      category = 'Risiko Tinggi';
+      colorClass = 'orange';
+      badgeColor = '#F97316';
+      summaryText = 'Kombinasi beberapa faktor risiko signifikan terdeteksi. Diperlukan perubahan gaya hidup aktif secara bertahap.';
+    } else if (totalScore >= 10) {
+      category = 'Risiko Sedang';
+      colorClass = 'yellow';
+      badgeColor = '#F59E0B';
+      summaryText = 'Ada beberapa kebiasaan yang bila dibiarkan bisa meningkatkan risiko Penyakit Tidak Menular (PTM).';
+    }
+
+    // Advice triggers
+    const adviceList = triggers.map((t) => focusAdviceBank[t]).filter(Boolean);
+    const uniqueAdvice = [...new Set(adviceList)];
+    
+    // Recommended Targets
+    const targetList = triggers.map((t) => recommendedTargetsBank[t]).filter(Boolean);
+    
+    // Filter out duplicates based on id
+    const uniqueTargets = [];
+    const seenIds = new Set();
+    for (const t of targetList) {
+      if (!seenIds.has(t.id)) {
+        seenIds.add(t.id);
+        uniqueTargets.push(t);
+      }
+    }
+
+    const resultObj = {
+      score: totalScore,
+      category,
+      colorClass,
+      badgeColor,
+      summaryText,
+      bmiInfo: userBmiData ? `${userBmiData.bmi} (${userBmiData.rawCategory})` : 'Tidak ada',
+      metabolicPoints,
+      cardioPoints,
+      lifestylePoints,
+      advice: uniqueAdvice.length > 0 ? uniqueAdvice.slice(0, 3) : ['pertahankan pola makan seimbang & aktivitas fisik harian Anda!'],
+      recommendedTargets: uniqueTargets,
+      date: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })
+    };
+
+    setSavedQuizResult(resultObj);
+    setCurrentStep(10);
+    const quizKey = currentUser?.id ? `NutriWise_quiz_result_${currentUser.id}` : 'NutriWise_quiz_result';
+    localStorage.setItem(quizKey, JSON.stringify(resultObj));
+    window.dispatchEvent(new Event('nutriwise_quiz_updated'));
+
+    // Save to Supabase user_metadata if configured
+    if (currentUser && isSupabaseConfigured && supabase) {
+      try {
+        await supabase.auth.updateUser({
+          data: { NutriWise_quiz_result: resultObj }
+        });
+      } catch (err) {
+        console.error('Gagal menyinkronkan hasil kuis ke Supabase:', err);
+      }
+    }
+  };
+
+  // ================= LOCKED STATE: IF BMI HAS NOT BEEN CALCULATED YET =================
+  if (!userBmiData) {
+    return (
+      <div className="quiz-container">
+        <div className="quiz-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+          <div style={{ width: '72px', height: '72px', background: 'rgba(239, 68, 68, 0.12)', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+            <Lock size={36} color="#DC2626" />
+          </div>
+
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-dark)', marginBottom: '10px' }}>
+            Kuis Skrining PTM Terkunci
+          </h2>
+
+          <p style={{ color: 'var(--color-muted)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '560px', margin: '0 auto 28px' }}>
+            Anda belum menghitung Indeks Massa Tubuh (BMI) di <strong>Kalkulator Nutrisi</strong>. Kuis skrining kesehatan membutuhkan data BMI awal Anda untuk menganalisis risiko Penyakit Tidak Menular secara akurat.
+          </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={onNavigateToCalc}
+              className="btn-nav-combined"
+              style={{ minWidth: '240px', padding: '14px 28px' }}
+            >
+              <span className="btn-text-default" style={{ gap: '8px' }}>
+                <Calculator size={18} /> HITUNG BMI SEKARANG
+              </span>
+              <span className="btn-text-hover" style={{ gap: '8px' }}>
+                 HITUNG BMI SEKARANG <ArrowRight size={16} />
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQ = quizQuestions[currentStep - 1];
+
+  return (
+    <div className="quiz-container">
+      {/* ================= STEP 0: INTRO SCREEN ================= */}
+      {currentStep === 0 && (
+        <div className="quiz-card quiz-intro-card">
+          <div className="quiz-intro-header">
+            <div className="quiz-badge">
+              <ClipboardCheck size={18} /> Skrining Mandiri PTM
+            </div>
+            <h2>Kuis Skrining Risiko Kesehatan &amp; Gaya Hidup</h2>
+            <p>
+              Uji indikator gaya hidup Anda untuk mendeteksi potensi risiko awal Penyakit Tidak Menular (Diabetes Tipe 2, Hipertensi, dan Penyakit Jantung).
+            </p>
+          </div>
+
+          {/* Auto-Pulled BMI Info Banner */}
+          <div className="quiz-bmi-banner" style={{ borderRadius: '16px', padding: '14px 18px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Activity size={20} color="var(--color-forest)" />
+              <div>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-forest)' }}>Data BMI Terhubung dari Kalkulator:</span>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-dark)' }}>
+                  BMI {userBmiData.bmi} kg/m² • {userBmiData.category} ({userBmiData.points} Poin Risiko)
+                </div>
+              </div>
+            </div>
+
+            <button onClick={onNavigateToCalc} className="btn-cta-outline" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>
+              Hitung Ulang BMI
+            </button>
+          </div>
+
+          <div className="quiz-features-grid">
+            <div className="quiz-feature-item">
+              <Zap size={22} color="var(--color-forest)" />
+              <div>
+                <h4>9 Pertanyaan Singkat</h4>
+                <p>Hanya membutuhkan waktu 1–2 menit untuk diselesaikan.</p>
+              </div>
+            </div>
+
+            <div className="quiz-feature-item">
+              <Activity size={22} color="var(--color-forest)" />
+              <div>
+                <h4>Algoritma Skor Berbobot</h4>
+                <p>Analisis 3 faktor risiko: Metabolik, Kardiovaskular, dan Genetik.</p>
+              </div>
+            </div>
+
+            <div className="quiz-feature-item">
+              <Heart size={22} color="var(--color-forest)" />
+              <div>
+                <h4>Rekomendasi Personal</h4>
+                <p>Mendapatkan fokus perbaikan spesifik berbasis hasil jawaban Anda.</p>
+              </div>
+            </div>
+          </div>
+
+          {savedQuizResult && (
+            <div className="quiz-last-result-banner">
+              <div>
+                <span className="last-result-title">Hasil Kuis Terakhir ({savedQuizResult.date}):</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <span className="badge-risk" style={{ background: savedQuizResult.badgeColor }}>
+                    Skor {savedQuizResult.score} • {savedQuizResult.category}
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => setCurrentStep(10)} className="btn-cta-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                Lihat Laporan Detail
+              </button>
+            </div>
+          )}
+
+          <div className="quiz-start-actions">
+            <button onClick={() => setCurrentStep(1)} className="btn-nav-combined" style={{ minWidth: '220px', padding: '14px 28px' }}>
+              <span className="btn-text-default">Mulai Kuis Skrining</span>
+              <span className="btn-text-hover">Mulai Kuis Skrining</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= STEPS 1..9: QUESTION CARDS ================= */}
+      {currentStep >= 1 && currentStep <= 9 && (
+        <div className="quiz-card">
+          {/* Progress Bar Header */}
+          <div className="quiz-progress-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ flex: 1, minWidth: '220px' }}>
+              <div className="quiz-step-info">
+                <span className="quiz-category-tag">{currentQ.categoryLabel}</span>
+                <span className="quiz-step-counter">Pertanyaan {currentStep} dari 9</span>
+              </div>
+              <div className="quiz-progress-bar-bg">
+                <div
+                  className="quiz-progress-bar-fill"
+                  style={{ width: `${(currentStep / 9) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowExitConfirmModal(true)}
+              className="btn-exit-quiz"
+              title="Keluar dari Kuis Skrining"
+            >
+              <X size={15} style={{ marginRight: '4px', flexShrink: 0 }} /> Keluar Kuis
+            </button>
+          </div>
+
+          {/* Question Text */}
+          <div className="quiz-question-box">
+            <h3 className="quiz-question-text">{currentQ.question}</h3>
+            {currentQ.note && <p className="quiz-question-note"><Info size={14} /> {currentQ.note}</p>}
+          </div>
+
+          {/* Options Grid */}
+          <div className="quiz-options-list">
+            {currentQ.options.map((opt, idx) => {
+              const isSelected = answers[currentStep - 1]?.text === opt.text;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleSelectOption(currentStep - 1, opt)}
+                  className={`quiz-option-card ${isSelected ? 'selected' : ''}`}
+                >
+                  <div className="quiz-radio-indicator">
+                    {isSelected && <CheckCircle2 size={18} color="var(--color-forest)" />}
+                  </div>
+                  <span className="quiz-option-text">{opt.text}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Navigation Controls */}
+          <div className="quiz-nav-footer">
+            <button
+              onClick={handlePrevStep}
+              disabled={currentStep === 1}
+              className="btn-warning-outline"
+              style={{ opacity: currentStep === 1 ? 0.4 : 1, cursor: currentStep === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              <ArrowLeft size={16} /> Sebelumnya
+            </button>
+
+            <button
+              onClick={handleNextStep}
+              disabled={!answers[currentStep - 1]}
+              className="btn-auth-primary"
+              style={{
+                opacity: !answers[currentStep - 1] ? 0.45 : 1,
+                cursor: !answers[currentStep - 1] ? 'not-allowed' : 'pointer',
+                minWidth: '150px'
+              }}
+            >
+              {currentStep === 9 ? 'Lihat Hasil Analisis' : 'Selanjutnya'} <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= STEP 10: RESULTS DASHBOARD ================= */}
+      {currentStep === 10 && savedQuizResult && (
+        <div className="quiz-card quiz-results-card">
+          <div className="results-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ textAlign: 'left' }}>
+              <span className="badge-risk-hero" style={{ background: savedQuizResult.badgeColor }}>
+                Tingkat: {savedQuizResult.category}
+              </span>
+              <h2>Laporan Skrining Mandiri PTM</h2>
+              <div className="results-date">Dianalisis pada {savedQuizResult.date}</div>
+            </div>
+          </div>
+
+          {/* Score Circle & Summary Banner */}
+          <div className="results-score-banner">
+            <div 
+              className="score-big-circle"
+              style={{ borderColor: savedQuizResult.badgeColor, '--circle-risk-color': savedQuizResult.badgeColor }}
+            >
+              <span className="score-num">{savedQuizResult.score}</span>
+              <span className="score-max">Skor Total</span>
+            </div>
+
+            <div className="score-summary-text">
+              <h3>Status Indikator Kesehatan</h3>
+              <p>{savedQuizResult.summaryText}</p>
+              {userBmiData && (
+                <div style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-forest)', fontWeight: 700 }}>
+                  ✓ Termasuk Skor BMI: {userBmiData.bmi} ({userBmiData.rawCategory} • {userBmiData.points} Poin)
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sub-Risk Breakdown */}
+          <h4 className="section-subheading">Analisis Faktor Risiko Per Sub-Kategori</h4>
+          <div className="subrisk-grid">
+            <div className="subrisk-item">
+              <div className="subrisk-icon-box">
+                <Activity size={20} color="var(--color-forest)" />
+              </div>
+              <div className="subrisk-info">
+                <h5>Risiko Metabolik &amp; Diabetes</h5>
+                <p>BMI ({userBmiData?.bmi}), minuman manis, &amp; aktivitas fisik.</p>
+                <span className="subrisk-score">Skor Sub: {savedQuizResult.metabolicPoints} Poin</span>
+              </div>
+            </div>
+
+            <div className="subrisk-item">
+              <div className="subrisk-icon-box">
+                <Heart size={20} color="#DC2626" />
+              </div>
+              <div className="subrisk-info">
+                <h5>Risiko Kardiovaskular</h5>
+                <p>Gorengan, konsumsi garam, rokok, &amp; stres.</p>
+                <span className="subrisk-score">Skor Sub: {savedQuizResult.cardioPoints} Poin</span>
+              </div>
+            </div>
+
+            <div className="subrisk-item">
+              <div className="subrisk-icon-box">
+                <ShieldAlert size={20} color="#D97706" />
+              </div>
+              <div className="subrisk-info">
+                <h5>Gaya Hidup &amp; Genetik</h5>
+                <p>Durasi tidur &amp; riwayat penyakit keluarga.</p>
+                <span className="subrisk-score">Skor Sub: {savedQuizResult.lifestylePoints} Poin</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Targeted Action Advice */}
+          <div className="advice-box">
+            <h4>🎯 Fokus Perbaikan Utama Untuk Anda:</h4>
+            <ul>
+              {savedQuizResult.advice.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Medical Disclaimer */}
+          <div className="quiz-disclaimer">
+            <AlertTriangle size={18} color="#D97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <p>
+              <strong>Catatan Medis:</strong> Skrining mandiri ini adalah sarana edukasi dan deteksi dini berbasis algoritma faktor risiko gaya hidup, bukan diagnosis medis resmi. Konsultasikan dengan dokter spesialis untuk tes klinis lebih mendalam (cek laboratorium darah puasa, HbA1c, profil lipid, dan rekam jantung).
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="results-actions">
+            <button
+              onClick={() => {
+                setAnswers({});
+                setCurrentStep(1);
+              }}
+              className="btn-warning-outline"
+            >
+              <RotateCcw size={16} style={{ marginRight: '8px', flexShrink: 0 }} /> Ulangi Kuis Skrining
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= OPT-OUT / EXIT RECONFIRMATION MODAL ================= */}
+      {showExitConfirmModal && (
+        <div className="modal-backdrop" onClick={() => setShowExitConfirmModal(false)}>
+          <div className="modal-card" style={{ maxWidth: '440px', padding: '28px' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <AlertTriangle size={22} color="#DC2626" />
+                </div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-dark)', fontFamily: 'var(--font-serif)' }}>
+                  Keluar dari Kuis Skrining?
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowExitConfirmModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '0.92rem', color: 'var(--color-muted)', lineHeight: 1.5, marginBottom: '24px', textAlign: 'left' }}>
+              {currentStep >= 1 && currentStep <= 9
+                ? 'Jawaban kuis Anda saat ini tidak akan disimpan jika Anda keluar sekarang. Yakin ingin membatalkan kuis dan kembali ke menu?'
+                : 'Apakah Anda yakin ingin keluar dari kuis skrining kesehatan dan kembali ke menu utama?'}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowExitConfirmModal(false)}
+                className="btn-cta-outline"
+                style={{ padding: '8px 18px', fontSize: '0.88rem', height: '40px' }}
+              >
+                Lanjutkan Kuis
+              </button>
+              <button
+                onClick={() => {
+                  setShowExitConfirmModal(false);
+                  setAnswers({});
+                  setCurrentStep(0);
+                  if (currentStep === 0 && onNavigateToCalc) {
+                    onNavigateToCalc();
+                  }
+                }}
+                className="btn-danger-outline"
+                style={{ padding: '8px 18px', fontSize: '0.88rem', height: '40px' }}
+              >
+                <LogOut size={16} style={{ marginRight: '6px', flexShrink: 0 }} /> Ya, Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

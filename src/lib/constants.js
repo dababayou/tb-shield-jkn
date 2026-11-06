@@ -30,108 +30,331 @@ export const REGIONS_DATA = {
   }
 };
 
-// 1. Skrining Risiko TBC (Skor Usulan 0 - 10)
-// Gejala utama (maks 5 poin)
-// Faktor risiko kesehatan (maks 3 poin)
-// Tingkat paparan (maks 2 poin)
+// 1. Skrining Risiko TBC (Skor Maksimum 27 sesuai skoring TB.csv)
+// A1. Gejala (7 pertanyaan, bobot skor Ya: 3, 3, 2, 2, 2, 1, 1 - Maks. 14 poin)
+// A2. Faktor Risiko (8 pertanyaan, bobot skor Ya: 3, 2, 2, 2, 1, 1, 1, 1 - Maks. 13 poin)
+// Total skor: 0 - 27
+// Kategori:
+// 0 – 4 : Rendah (Edukasi pencegahan, skrining ulang berkala)
+// 5 – 9 : Sedang (Anjuran periksa ke faskes, rujukan tes)
+// ≥ 10  : Tinggi (Rujukan prioritas untuk tes dan evaluasi pengobatan)
 export const SCREENING_QUESTIONS = {
   gejala: [
     {
-      id: "cough_2w",
-      label: "Batuk selama 2 minggu atau lebih",
+      id: "batuk_dahak",
+      no: 1,
+      label: "Batuk berdahak ≥ 2 minggu",
+      points: 3,
+      isCardinal: true,
+      description: "Batuk berdahak terus-menerus selama dua minggu atau lebih merupakan gejala klinis utama tuberkulosis."
+    },
+    {
+      id: "batuk_darah",
+      no: 2,
+      label: "Batuk disertai darah",
+      points: 3,
+      isCardinal: true,
+      description: "Batuk bercampur bercak darah atau batuk darah segar (hemoptisis) merupakan tanda bahaya kardinal."
+    },
+    {
+      id: "demam",
+      no: 3,
+      label: "Demam atau meriang > 1 bulan",
       points: 2,
-      isCardinal: true,
-      description: "Batuk terus-menerus lebih dari 14 hari merupakan gejala kardinal utama TBC dan memicu arahan rujukan medis."
+      isCardinal: false,
+      description: "Demam subfebris atau meriang hilang-timbul dalam durasi lama (> 1 bulan)."
     },
     {
-      id: "fever_nightsweat",
-      label: "Demam meriang atau berkeringat malam tanpa aktivitas fisik",
+      id: "keringat_malam",
+      no: 4,
+      label: "Keringat malam tanpa aktivitas",
+      points: 2,
+      isCardinal: false,
+      description: "Keluarnya keringat dingin berlebih di malam hari tanpa melakukan aktivitas fisik berat."
+    },
+    {
+      id: "bb_turun",
+      no: 5,
+      label: "Berat badan turun tanpa sebab jelas / nafsu makan turun",
+      points: 2,
+      isCardinal: false,
+      description: "Penurunan berat badan tanpa penyebab yang jelas atau nafsu makan menurun drastis."
+    },
+    {
+      id: "sesak_dada",
+      no: 6,
+      label: "Sesak napas atau nyeri dada",
       points: 1,
       isCardinal: false,
-      description: "Suhu tubuh meningkat terutama sore/malam hari disertai keringat dingin saat tidur."
+      description: "Kesulitan bernapas, napas pendek, atau rasa nyeri/tertekan pada area rongga dada."
     },
     {
-      id: "weight_loss",
-      label: "Penurunan berat badan tanpa sebab jelas / nafsu makan menurun drastis",
+      id: "lemas_lelah",
+      no: 7,
+      label: "Lemas atau mudah lelah",
       points: 1,
       isCardinal: false,
-      description: "Berat badan turun secara signifikan dalam 1-2 bulan terakhir."
-    },
-    {
-      id: "hemoptysis",
-      label: "Batuk bercampur darah (hemoptisis)",
-      points: 1,
-      isCardinal: true,
-      description: "Dahak bercampur bercak darah atau batuk darah segar, merupakan tanda bahaya kardinal."
+      description: "Kelelahan kronis, tubuh terasa lemah berkepanjangan walau telah cukup istirahat."
     }
   ],
   faktorRisiko: [
     {
-      id: "diabetes",
-      label: "Memiliki riwayat Diabetes Mellitus (kencing manis)",
-      points: 1,
-      description: "Gula darah tinggi menurunkan imunitas seluler, melipatgandakan risiko TBC aktif."
+      id: "kontak_tb",
+      no: 8,
+      label: "Kontak serumah / dekat dengan penderita TB",
+      points: 3,
+      description: "Tinggal satu rumah atau kontak intensif jarak dekat dengan pasien TB terkonfirmasi."
+    },
+    {
+      id: "riwayat_tb",
+      no: 9,
+      label: "Pernah sakit TB atau pernah berobat TB",
+      points: 2,
+      description: "Riwayat diagnosis atau pernah menjalani pengobatan obat anti-TB sebelumnya."
     },
     {
       id: "hiv",
-      label: "Memiliki riwayat HIV/AIDS atau kondisi defisiensi imun",
-      points: 1,
-      description: "Penurunan sel CD4 membuat infeksi TBC laten sangat mudah berkembang menjadi TBC aktif."
+      no: 10,
+      label: "Memiliki HIV",
+      points: 2,
+      description: "Infeksi HIV yang menyebabkan penurunan daya tahan tubuh seluler terhadap infeksi TB."
     },
     {
-      id: "low_bmi",
-      label: "Indeks Massa Tubuh (IMT) di bawah 18,5 (kurang gizi / sangat kurus)",
-      points: 1,
-      description: "Kekurangan asupan energi & protein melemahkan pertahanan sistem imun terhadap bakteri TBC."
-    }
-  ],
-  paparan: [
-    {
-      id: "household",
-      label: "Tinggal satu rumah dengan pasien TBC terkonfirmasi",
-      points: 1,
-      description: "Tinggal bersama pasien TBC meningkatkan intensitas paparan droplet bakteri pernapasan."
+      id: "diabetes",
+      no: 11,
+      label: "Memiliki diabetes",
+      points: 2,
+      description: "Riwayat diabetes mellitus (kencing manis) yang menurunkan imunitas seluler."
     },
     {
-      id: "same_room",
-      label: "Tidur satu kamar dengan pasien TBC terkonfirmasi",
+      id: "merokok",
+      no: 12,
+      label: "Merokok",
       points: 1,
-      description: "Paparan udara tertutup dalam durasi 6-8 jam semalam sangat meningkatkan transmisi bakteri."
+      description: "Riwayat merokok aktif yang dapat merusak silia dan pertahanan mukosa saluran napas."
+    },
+    {
+      id: "kurang_gizi",
+      no: 13,
+      label: "Kurang gizi / IMT rendah",
+      points: 1,
+      description: "Indeks Massa Tubuh (IMT) di bawah 18,5 atau kondisi malnutrisi energi protein."
+    },
+    {
+      id: "hunian_padat",
+      no: 14,
+      label: "Tinggal di hunian padat atau berventilasi buruk",
+      points: 1,
+      description: "Kepadatan hunian tinggi atau sirkulasi udara dan ventilasi ruangan yang kurang memadai."
+    },
+    {
+      id: "lansia_anak",
+      no: 15,
+      label: "Lansia (≥ 60 tahun) atau anak < 5 tahun",
+      points: 1,
+      description: "Kelompok usia rentan dengan imunitas fisiologis yang lebih rentan terhadap infeksi kuman TB."
     }
   ]
 };
 
-// 2. Skrining Risiko Ketidakpatuhan (5 Pertanyaan Hambatan)
+// 2. Skrining Risiko Kepatuhan TPT (sesuai skoring tpt.csv)
+// 17 Pertanyaan (B1 - B17) mencakup 6 faktor hambatan:
+// Pengetahuan, Akses, Ekonomi, Dukungan Sosial, Stigma, Perilaku dan Kondisi
+// Skor per pertanyaan: 0, 1, atau 2 (Maks. 34 poin)
+// Skor tinggi mengindikasikan hambatan kepatuhan / risiko drop-out tinggi
 export const ADHERENCE_QUESTIONS = [
+  // Pengetahuan (B1 - B3)
   {
-    id: "adh_1",
-    indicator: "Persepsi Sehat / Urgensi Obat",
-    question: "Apakah Anda merasa tidak perlu minum obat karena saat ini tubuh merasa sehat dan tidak ada gejala sakit?",
-    description: "Bakteri TBC pada infeksi laten tidak menimbulkan gejala, namun tetap memerlukan TPT agar tidak menjadi sakit aktif."
+    id: "b1",
+    no: "B1",
+    factor: "Pengetahuan",
+    question: "Apakah tahu TB bisa sembuh dengan obat?",
+    options: [
+      { label: "Tahu", points: 0 },
+      { label: "Ragu", points: 1 },
+      { label: "Tidak", points: 2 }
+    ]
   },
   {
-    id: "adh_2",
-    indicator: "Kecemasan Efek Samping",
-    question: "Apakah Anda khawatir atau pernah mengalami rasa mual, pusing, atau takut obat akan merusak organ tubuh (seperti hati/ginjal)?",
-    description: "Kekhawatiran efek samping sering kali dapat diatasi dengan pendampingan dosis dan edukasi tenaga kesehatan."
+    id: "b2",
+    no: "B2",
+    factor: "Pengetahuan",
+    question: "Apakah tahu obat harus diminum ± 6 bulan tanpa putus?",
+    options: [
+      { label: "Tahu", points: 0 },
+      { label: "Ragu", points: 1 },
+      { label: "Tidak", points: 2 }
+    ]
   },
   {
-    id: "adh_3",
-    indicator: "Hambatan Stigma & Privasi",
-    question: "Apakah Anda merasa khawatir/malu jika tetangga atau orang luar mengetahui Anda sedang mengonsumsi obat pencegahan TBC?",
-    description: "Stigma sosial sering menjadi penghalang utama kontak erat menyelesaikan terapi pencegahan."
+    id: "b3",
+    no: "B3",
+    factor: "Pengetahuan",
+    question: "Apakah tahu bahaya putus obat (kuman kebal obat)?",
+    options: [
+      { label: "Tahu", points: 0 },
+      { label: "Ragu", points: 1 },
+      { label: "Tidak", points: 2 }
+    ]
+  },
+  // Akses (B4 - B6)
+  {
+    id: "b4",
+    no: "B4",
+    factor: "Akses",
+    question: "Jarak/waktu tempuh ke faskes",
+    options: [
+      { label: "< 30 menit", points: 0 },
+      { label: "30–60 menit", points: 1 },
+      { label: "> 60 menit", points: 2 }
+    ]
   },
   {
-    id: "adh_4",
-    indicator: "Kompleksitas Regimen & Jadwal",
-    question: "Apakah Anda sering lupa minum obat rutin, memiliki jadwal kerja/kegiatan yang padat, atau merasa jumlah obat terlalu banyak?",
-    description: "Regimen singkat modern (seperti 3HP/1HP) kini tersedia di FKTP untuk mempermudah rutinitas minum obat."
+    id: "b5",
+    no: "B5",
+    factor: "Akses",
+    question: "Apakah transportasi sulit atau mahal?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Kadang", points: 1 },
+      { label: "Ya", points: 2 }
+    ]
   },
   {
-    id: "adh_5",
-    indicator: "Keterbatasan Dukungan Keluarga",
-    question: "Apakah di rumah tidak ada anggota keluarga yang mengingatkan atau mendukung Anda untuk minum obat setiap hari?",
-    description: "Keberadaan Pengawas Menelan Obat (PMO) keluarga terbukti meningkatkan keberhasilan terapi hingga di atas 90%."
+    id: "b6",
+    no: "B6",
+    factor: "Akses",
+    question: "Apakah jam kerja bentrok dengan jam layanan faskes?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Kadang", points: 1 },
+      { label: "Ya", points: 2 }
+    ]
+  },
+  // Ekonomi (B7 - B9)
+  {
+    id: "b7",
+    no: "B7",
+    factor: "Ekonomi",
+    question: "Apakah mampu membiayai transport dan pemeriksaan?",
+    options: [
+      { label: "Mampu", points: 0 },
+      { label: "Terbatas", points: 1 },
+      { label: "Tidak", points: 2 }
+    ]
+  },
+  {
+    id: "b8",
+    no: "B8",
+    factor: "Ekonomi",
+    question: "Apakah akan kehilangan penghasilan jika sering izin berobat?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Sebagian", points: 1 },
+      { label: "Ya", points: 2 }
+    ]
+  },
+  {
+    id: "b9",
+    no: "B9",
+    factor: "Ekonomi",
+    question: "Punya jaminan kesehatan (BPJS) aktif?",
+    options: [
+      { label: "Ya", points: 0 },
+      { label: "Tidak aktif", points: 1 },
+      { label: "Tidak punya", points: 2 }
+    ]
+  },
+  // Dukungan sosial (B10 - B11)
+  {
+    id: "b10",
+    no: "B10",
+    factor: "Dukungan sosial",
+    question: "Ada keluarga atau orang yang mau mendampingi minum obat (PMO)?",
+    options: [
+      { label: "Ada", points: 0 },
+      { label: "Belum pasti", points: 1 },
+      { label: "Tidak ada", points: 2 }
+    ]
+  },
+  {
+    id: "b11",
+    no: "B11",
+    factor: "Dukungan sosial",
+    question: "Tinggal sendiri atau sering berpindah tempat?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Kadang", points: 1 },
+      { label: "Ya", points: 2 }
+    ]
+  },
+  // Stigma (B12 - B13)
+  {
+    id: "b12",
+    no: "B12",
+    factor: "Stigma",
+    question: "Apakah malu atau takut orang lain tahu menderita TB?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Sedikit", points: 1 },
+      { label: "Sangat", points: 2 }
+    ]
+  },
+  {
+    id: "b13",
+    no: "B13",
+    factor: "Stigma",
+    question: "Takut dijauhi keluarga, tetangga, atau tempat kerja?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Sedikit", points: 1 },
+      { label: "Sangat", points: 2 }
+    ]
+  },
+  // Perilaku dan kondisi (B14 - B17)
+  {
+    id: "b14",
+    no: "B14",
+    factor: "Perilaku dan kondisi",
+    question: "Pernah putus atau berhenti minum obat jangka panjang sebelumnya?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Pernah sekali", points: 1 },
+      { label: "Lebih dari sekali", points: 2 }
+    ]
+  },
+  {
+    id: "b15",
+    no: "B15",
+    factor: "Perilaku dan kondisi",
+    question: "Khawatir efek samping obat?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Sedikit", points: 1 },
+      { label: "Sangat", points: 2 }
+    ]
+  },
+  {
+    id: "b16",
+    no: "B16",
+    factor: "Perilaku dan kondisi",
+    question: "Sering lupa minum obat atau mudah bosan?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Kadang", points: 1 },
+      { label: "Sering", points: 2 }
+    ]
+  },
+  {
+    id: "b17",
+    no: "B17",
+    factor: "Perilaku dan kondisi",
+    question: "Ada kebiasaan/kondisi lain (alkohol, napza, gangguan mental, penyakit penyerta)?",
+    options: [
+      { label: "Tidak", points: 0 },
+      { label: "Ada satu", points: 1 },
+      { label: "Lebih dari satu", points: 2 }
+    ]
   }
 ];
 
@@ -450,8 +673,8 @@ export const INITIAL_CONTACTS = [
     skriningDate: "2026-11-05",
     skor: 7,
     kategoriRisiko: "Sedang",
-    gejalaAktif: ["fever_nightsweat", "weight_loss"],
-    faktorAktif: ["household", "diabetes", "low_bmi"],
+    gejalaAktif: ["demam", "bb_turun"],
+    faktorAktif: ["kontak_tb"],
     imt: 17.8,
     kategoriIMT: "Kurus",
     status: "Terdaftar",
@@ -474,10 +697,10 @@ export const INITIAL_CONTACTS = [
     fk: "Puskesmas Gubeng",
     hubungan: "Kontak dekat (rekan kerja)",
     skriningDate: "2026-11-03",
-    skor: 1,
+    skor: 3,
     kategoriRisiko: "Rendah",
     gejalaAktif: [],
-    faktorAktif: ["diabetes"],
+    faktorAktif: ["diabetes", "merokok"],
     imt: 22.1,
     kategoriIMT: "Normal",
     status: "Terdaftar",
@@ -499,10 +722,10 @@ export const INITIAL_CONTACTS = [
     fk: "Puskesmas Gubeng",
     hubungan: "Serumah dengan pasien",
     skriningDate: "2026-11-06",
-    skor: 9,
+    skor: 13,
     kategoriRisiko: "Tinggi",
-    gejalaAktif: ["cough_2w", "hemoptysis", "weight_loss"],
-    faktorAktif: ["household", "same_room", "diabetes"],
+    gejalaAktif: ["batuk_dahak", "batuk_darah", "bb_turun"],
+    faktorAktif: ["kontak_tb", "diabetes"],
     imt: 16.9,
     kategoriIMT: "Sangat Kurus",
     status: "Terdaftar",

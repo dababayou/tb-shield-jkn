@@ -11,10 +11,10 @@ const TBShieldContext = createContext();
 
 export function TBShieldProvider({ children }) {
   // Migration check: ensure fresh clean initial state on updated version
-  if (typeof window !== 'undefined' && !localStorage.getItem('tbshield_v3_clean_state')) {
+  if (typeof window !== 'undefined' && !localStorage.getItem('tbshield_v4_clean_state')) {
     localStorage.removeItem('tbshield_contacts');
     localStorage.removeItem('tbshield_current_user');
-    localStorage.setItem('tbshield_v3_clean_state', 'true');
+    localStorage.setItem('tbshield_v4_clean_state', 'true');
   }
 
   // Current logged in user or staff
@@ -119,82 +119,79 @@ export function TBShieldProvider({ children }) {
     localStorage.setItem('tbshield_user_tab', tab);
   };
 
-  // Helper to calculate Screening Score from answers
+  // Helper to calculate Screening Score from answers (sesuai skoring TB.csv)
   const computeScreeningScore = (gejalaIds = [], risikoIds = [], paparanIds = []) => {
     let score = 0;
+    let gejalaScore = 0;
+    let faktorScore = 0;
     let hasCardinal = false;
     let hasCough2w = false;
-    let riskExposureScore = 0;
 
-    // 1. Gejala (maks 5 poin)
+    // Gabungkan risikoIds dan paparanIds (jika ada panggilan lama)
+    const combinedRisikoIds = [...risikoIds, ...(paparanIds || [])];
+
+    // 1. A1. Gejala (maks 14 poin)
     SCREENING_QUESTIONS.gejala.forEach((item) => {
       if (gejalaIds.includes(item.id)) {
         score += item.points;
+        gejalaScore += item.points;
         if (item.isCardinal) hasCardinal = true;
-        if (item.id === 'cough_2w') hasCough2w = true;
+        if (item.id === 'batuk_dahak' || item.id === 'cough_2w') hasCough2w = true;
       }
     });
 
-    // 2. Faktor risiko kesehatan (maks 3 poin)
+    // 2. A2. Faktor Risiko (maks 13 poin)
     SCREENING_QUESTIONS.faktorRisiko.forEach((item) => {
-      if (risikoIds.includes(item.id)) {
+      if (combinedRisikoIds.includes(item.id)) {
         score += item.points;
-        riskExposureScore += item.points;
+        faktorScore += item.points;
       }
     });
 
-    // 3. Tingkat paparan (maks 2 poin)
-    SCREENING_QUESTIONS.paparan.forEach((item) => {
-      if (paparanIds.includes(item.id)) {
-        score += item.points;
-        riskExposureScore += item.points;
-      }
-    });
+    // Total skor maksimum 27
+    const totalScore = Math.min(27, score);
 
-    // Total score capped at 10
-    const totalScore = Math.min(10, score);
-
-    // Referral triggers according to knowledge brief & proposal:
-    // - Batuk >= 2 minggu memicu rujukan pemeriksaan
-    // - Gejala utama signifikan lainnya (misal batuk darah)
-    // - Jika tanpa gejala kardinal, skor gabungan risiko & paparan >= 2 memicu evaluasi prioritas TPT
-    // - Atau total skor >= 9 (Risiko Tinggi / Red Flag)
+    // Kategori & Tindak Lanjut sesuai skoring TB.csv:
+    // 0 – 4 : Rendah -> Edukasi pencegahan, skrining ulang berkala
+    // 5 – 9 : Sedang -> Anjuran periksa ke faskes, rujukan tes
+    // ≥ 10  : Tinggi -> Rujukan prioritas untuk tes dan evaluasi pengobatan
+    let riskCategory = 'Rendah';
     let isReferralNeeded = false;
     let referralReason = '';
 
-    if (hasCough2w) {
-      isReferralNeeded = true;
-      referralReason = 'Batuk selama 2 minggu atau lebih (Gejala Kardinal TBC)';
-    } else if (hasCardinal) {
-      isReferralNeeded = true;
-      referralReason = 'Terdapat tanda bahaya / gejala kardinal (Batuk bercampur darah)';
-    } else if (totalScore >= 9) {
-      isReferralNeeded = true;
-      referralReason = 'Skor risiko epidemiologis tinggi (≥ 9 poin)';
-    } else if (gejalaIds.length === 0 && riskExposureScore >= 2) {
-      isReferralNeeded = true;
-      referralReason = 'Kontak erat tanpa gejala dengan akumulasi faktor risiko & paparan tinggi (≥ 2 poin)';
-    } else if (totalScore >= 4) {
-      referralReason = 'Risiko Sedang: Diperlukan konseling TPT di FKTP terdekat';
-    } else {
-      referralReason = 'Risiko Rendah: Pemantauan mandiri di rumah & pemenuhan nutrisi rutin';
-    }
-
-    let riskCategory = 'Rendah';
-    if (totalScore >= 9 || hasCardinal || hasCough2w) {
+    if (totalScore >= 10) {
       riskCategory = 'Tinggi';
-    } else if (totalScore >= 4) {
+      isReferralNeeded = true;
+      referralReason = hasCardinal
+        ? 'Rujukan prioritas untuk tes dan evaluasi pengobatan (Skor ≥ 10, Disertai Gejala Kardinal Batuk)'
+        : 'Rujukan prioritas untuk tes dan evaluasi pengobatan (Skor ≥ 10)';
+    } else if (totalScore >= 5) {
       riskCategory = 'Sedang';
+      isReferralNeeded = true;
+      referralReason = hasCardinal
+        ? 'Anjuran periksa ke faskes, rujukan tes (Skor 5 – 9, Disertai Gejala Kardinal Batuk)'
+        : 'Anjuran periksa ke faskes, rujukan tes (Skor 5 – 9)';
+    } else {
+      riskCategory = 'Rendah';
+      if (hasCardinal) {
+        isReferralNeeded = true;
+        referralReason = 'Terdapat gejala kardinal batuk, dianjurkan pemeriksaan penunjang di faskes';
+      } else {
+        isReferralNeeded = false;
+        referralReason = 'Edukasi pencegahan, skrining ulang berkala (Skor 0 – 4)';
+      }
     }
 
     return {
       totalScore,
+      maxScore: 27,
+      gejalaScore,
+      faktorScore,
       riskCategory,
       isReferralNeeded,
       referralReason,
       hasCardinal,
-      hasCough2w,
-      riskExposureScore
+      hasCough2w
     };
   };
 

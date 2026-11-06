@@ -556,6 +556,29 @@ export default function Navbar({ onOpenPrivacy, onOpenPatientSafety, onOpenAuth 
             </a>
 
             <div style={{ paddingTop: '14px', borderTop: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {!currentUser && (
+                <button
+                  onClick={() => handleOpenAuthModal('user', 'login')}
+                  style={{
+                    background: 'var(--color-navy)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '10px 14px',
+                    fontWeight: 800,
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginBottom: '4px'
+                  }}
+                >
+                  <User size={16} /> Masuk / Daftar Akun
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

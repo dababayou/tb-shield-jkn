@@ -3241,7 +3241,7 @@ button:active:not(:disabled),
    ========================================================================== */
 
 /* --- Laptop L (1440px and below) --- */
-@media (max-width: 1440px) {
+@media (max-width: 2560px) {
   /* Hapus "Kepatuhan UU PDP No. 27/2022" di hero */
   .hero-badge-pdp {
     display: none !important;
@@ -3405,6 +3405,45 @@ button:active:not(:disabled),
 
 /* --- Tablet Portrait & Small Screen (768px and below) --- */
 @media (max-width: 768px) {
+  /* Hilangkan tombol masuk/daftar di header pada tampilan mobile */
+  .nav-auth-login,
+  .nav-auth-login *,
+  .btn-nav-auth,
+  .nav-btn-dashboard {
+    display: none !important;
+  }
+
+  /* Tampilkan tombol masuk/daftar di bawah teks deskripsi hero */
+  .hero-mobile-auth-wrapper {
+    display: block !important;
+    margin: 20px 0 24px 0 !important;
+    width: 100% !important;
+  }
+
+  .hero-btn-mobile-auth {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    background: linear-gradient(135deg, #112250 0%, #3C507D 100%) !important;
+    color: #FFFFFF !important;
+    padding: 13px 24px !important;
+    border-radius: 50px !important;
+    font-weight: 800 !important;
+    font-size: 0.95rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 8px 24px rgba(17, 34, 80, 0.25) !important;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease !important;
+  }
+
+  .hero-btn-mobile-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(17, 34, 80, 0.35) !important;
+  }
+
   /* Samakan padding kiri-kanan semua fitur dengan mitos vs fakta */
   .container,
   .container.section {
@@ -3526,39 +3565,6 @@ button:active:not(:disabled),
 
 /* --- Mobile L (425px and below) --- */
 @media (max-width: 425px) {
-  /* Hilangkan tombol masuk/daftar di header */
-  .nav-auth-login,
-  .nav-auth-login *,
-  .btn-nav-auth,
-  .nav-btn-dashboard {
-    display: none !important;
-  }
-
-  /* Taruh button masuk/daftar di tempat button "Mulai Skrining Mandiri (Privat)" di hero */
-  .hero-mobile-auth-wrapper {
-    display: block !important;
-    margin-bottom: 24px !important;
-    width: 100% !important;
-  }
-
-  .hero-btn-mobile-auth {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 100% !important;
-    background: linear-gradient(135deg, #112250 0%, #3C507D 100%) !important;
-    color: #FFFFFF !important;
-    padding: 13px 24px !important;
-    border-radius: 50px !important;
-    font-weight: 800 !important;
-    font-size: 0.95rem !important;
-    border: none !important;
-    cursor: pointer !important;
-    box-shadow: 0 8px 24px rgba(17, 34, 80, 0.25) !important;
-    text-align: center;
-    text-decoration: none;
-  }
-
   /* Kompres hero-micro-stats agar tetap 1 baris di mobile */
   .hero-micro-stats {
     gap: 6px !important;

@@ -27,7 +27,7 @@ export default function FourPillarsShowcase({ onSelectPillar }) {
       color: '#3C507D',
       bgLight: '#F0F4FC',
       points: [
-        'Instrumen skoring usulan 0–10 poin (Gejala, Risiko, Paparan).',
+        'Instrumen skoring skrining risiko TB berbasis gejala dan faktor risiko klinis.',
         'Analisis frekuensi dan ritme tempo batuk menggunakan kecerdasan buatan.',
         'Penapis awal privat tanpa stigma sebelum melangkah ke fasilitas kesehatan.'
       ]

@@ -32,7 +32,6 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
   // Selected checkboxes (Default Kosong: diisi mandiri oleh pengguna)
   const [selectedGejala, setSelectedGejala] = useState([]);
   const [selectedRisiko, setSelectedRisiko] = useState([]);
-  const [selectedPaparan, setSelectedPaparan] = useState([]);
 
   // Audio recording & waveform simulation
   const [isRecording, setIsRecording] = useState(false);
@@ -130,7 +129,7 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
         setAudioAnalyzed(true);
 
         // Simulation logic based on symptoms checked
-        const hasCough = selectedGejala.includes('cough_2w') || selectedGejala.includes('hemoptysis');
+        const hasCough = selectedGejala.includes('batuk_dahak') || selectedGejala.includes('batuk_darah') || selectedGejala.includes('cough_2w') || selectedGejala.includes('hemoptysis');
         setAudioResult({
           confidence: hasCough ? 86 : 38,
           tempoPattern: hasCough ? 'Paroksismal Berat / Pola Akustik Basah' : 'Pola Ritme Normal Teratur',
@@ -145,7 +144,7 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
 
   // Calculate & Submit Screening
   const handleCalculateScore = () => {
-    const res = computeScreeningScore(selectedGejala, selectedRisiko, selectedPaparan);
+    const res = computeScreeningScore(selectedGejala, selectedRisiko);
     setResultData(res);
     setShowResult(true);
 
@@ -160,7 +159,7 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
               kategoriRisiko: res.riskCategory,
               referralReason: res.referralReason,
               gejalaAktif: selectedGejala,
-              faktorAktif: [...selectedRisiko, ...selectedPaparan],
+              faktorAktif: selectedRisiko,
               skriningDate: new Date().toISOString().split('T')[0]
             };
           }
@@ -187,7 +186,6 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
   const handleReset = () => {
     setSelectedGejala([]);
     setSelectedRisiko([]);
-    setSelectedPaparan([]);
     setAudioAnalyzed(false);
     setAudioResult(null);
     setShowResult(false);
@@ -206,13 +204,13 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <span className="badge-tb-jkn">Pilar 1 Inovasi</span>
-              <span className="badge-demo-tag">Instrumen Usulan 0 - 10</span>
+              <span className="badge-demo-tag">Instrumen Skrining Risiko TB</span>
             </div>
             <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-navy)', margin: '4px 0 10px' }}>
               Teleskrining Risiko &amp; Teletriase Akustik Batuk
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.98rem', maxWidth: '660px', margin: '0 auto', lineHeight: 1.6 }}>
-              Penapis awal risiko TBC dari rumah secara privat. Mengintegrasikan penilaian gejala kardinal, riwayat paparan kontak, komorbiditas, serta penunjang analisis tempo suara batuk.
+              Penapis awal risiko TBC dari rumah secara privat. Mengintegrasikan penilaian gejala klinis, faktor risiko kesehatan, riwayat kontak, serta penunjang analisis akustik batuk.
             </p>
           </div>
         )}
@@ -245,29 +243,14 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
           boxShadow: 'var(--shadow-sm)',
           marginBottom: '32px'
         }}>
-          {/* Group 1: Gejala Utama (Maks. 5 Poin) */}
+          {/* Group 1: A1. Gejala (7 Pertanyaan sesuai skoring TB.csv) */}
           <div style={{ marginBottom: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
-                  A. Gejala Utama Kardinal
-                </h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-                  Maksimum bobot: 5 poin (Batuk ≥ 2 minggu &amp; batuk darah menjadi pemicu rujukan)
-                </span>
-              </div>
-              <span style={{
-                background: 'rgba(60, 80, 125, 0.1)',
-                color: 'var(--color-primary)',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                padding: '4px 10px',
-                borderRadius: '8px'
-              }}>
-                {selectedGejala.reduce((acc, id) => {
-                  const q = SCREENING_QUESTIONS.gejala.find((item) => item.id === id);
-                  return acc + (q?.points || 0);
-                }, 0)} / 5 Poin
+            <div style={{ marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
+                A1. Gejala
+              </h3>
+              <span style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>
+                Centang setiap gejala klinis yang Anda alami saat ini.
               </span>
             </div>
 
@@ -298,18 +281,20 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--color-dark)' }}>
-                          {item.label}
+                          {item.no}. {item.label}
                         </span>
-                        <span style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          background: item.isCardinal ? '#FEE2E2' : '#F1F5F9',
-                          color: item.isCardinal ? '#DC2626' : '#475569'
-                        }}>
-                          +{item.points} Poin {item.isCardinal ? '(Kardinal)' : ''}
-                        </span>
+                        {item.isCardinal && (
+                          <span style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            background: '#FEE2E2',
+                            color: '#DC2626'
+                          }}>
+                            Gejala Utama
+                          </span>
+                        )}
                       </div>
                       <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
                         {item.description}
@@ -321,29 +306,14 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
             </div>
           </div>
 
-          {/* Group 2: Faktor Risiko Kesehatan (Maks. 3 Poin) */}
-          <div style={{ marginBottom: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
-                  B. Faktor Risiko Kesehatan &amp; Komorbiditas
-                </h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-                  Maksimum bobot: 3 poin (Kondisi yang menurunkan daya tahan tubuh)
-                </span>
-              </div>
-              <span style={{
-                background: 'rgba(60, 80, 125, 0.1)',
-                color: 'var(--color-primary)',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                padding: '4px 10px',
-                borderRadius: '8px'
-              }}>
-                {selectedRisiko.reduce((acc, id) => {
-                  const q = SCREENING_QUESTIONS.faktorRisiko.find((item) => item.id === id);
-                  return acc + (q?.points || 0);
-                }, 0)} / 3 Poin
+          {/* Group 2: A2. Faktor Risiko (8 Pertanyaan sesuai skoring TB.csv) */}
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{ marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
+                A2. Faktor Risiko
+              </h3>
+              <span style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>
+                Centang faktor risiko kesehatan atau riwayat kontak yang sesuai dengan Anda.
               </span>
             </div>
 
@@ -372,97 +342,9 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
                       style={{ marginTop: '4px', width: '18px', height: '18px', accentColor: 'var(--color-primary)' }}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--color-dark)' }}>
-                          {item.label}
-                        </span>
-                        <span style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          background: '#F1F5F9',
-                          color: '#475569'
-                        }}>
-                          +{item.points} Poin
-                        </span>
-                      </div>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
-                        {item.description}
-                      </p>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Group 3: Tingkat Paparan Pasien TBC (Maks. 2 Poin) */}
-          <div style={{ marginBottom: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>
-                  C. Tingkat Paparan Kontak Erat
-                </h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-                  Maksimum bobot: 2 poin (Kedekatan jarak dan durasi bersama pasien TBC terkonfirmasi)
-                </span>
-              </div>
-              <span style={{
-                background: 'rgba(60, 80, 125, 0.1)',
-                color: 'var(--color-primary)',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                padding: '4px 10px',
-                borderRadius: '8px'
-              }}>
-                {selectedPaparan.reduce((acc, id) => {
-                  const q = SCREENING_QUESTIONS.paparan.find((item) => item.id === id);
-                  return acc + (q?.points || 0);
-                }, 0)} / 2 Poin
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {SCREENING_QUESTIONS.paparan.map((item) => {
-                const isChecked = selectedPaparan.includes(item.id);
-                return (
-                  <label
-                    key={item.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                      padding: '12px 16px',
-                      borderRadius: '12px',
-                      border: isChecked ? '2px solid var(--color-primary)' : '1px solid #D9CBC2',
-                      background: isChecked ? '#F0F4FC' : '#FFFFFF',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleItem(selectedPaparan, setSelectedPaparan, item.id)}
-                      style={{ marginTop: '4px', width: '18px', height: '18px', accentColor: 'var(--color-primary)' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--color-dark)' }}>
-                          {item.label}
-                        </span>
-                        <span style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '6px',
-                          background: '#F1F5F9',
-                          color: '#475569'
-                        }}>
-                          +{item.points} Poin
-                        </span>
-                      </div>
+                      <span style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--color-dark)' }}>
+                        {item.no}. {item.label}
+                      </span>
                       <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
                         {item.description}
                       </p>
@@ -643,15 +525,15 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
                   color: resultData.riskCategory === 'Tinggi' ? '#DC2626' : resultData.riskCategory === 'Sedang' ? '#D97706' : '#0F766E',
                   margin: '4px 0 0'
                 }}>
-                  {resultData.riskCategory === 'Tinggi' && 'Risiko Tinggi / Red Flag'}
-                  {resultData.riskCategory === 'Sedang' && 'Risiko Sedang'}
-                  {resultData.riskCategory === 'Rendah' && 'Risiko Rendah'}
+                  {resultData.riskCategory === 'Tinggi' && 'Risiko Tinggi (Rujukan Prioritas)'}
+                  {resultData.riskCategory === 'Sedang' && 'Risiko Sedang (Anjuran Periksa Faskes)'}
+                  {resultData.riskCategory === 'Rendah' && 'Risiko Rendah (Edukasi Pencegahan)'}
                 </h3>
               </div>
 
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block' }}>
-                  Total Skor Usulan:
+                  Total Skor Skrining:
                 </span>
                 <div style={{
                   fontSize: '2.4rem',
@@ -660,15 +542,63 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
                   color: 'var(--color-navy)',
                   lineHeight: 1
                 }}>
-                  {resultData.totalScore} <span style={{ fontSize: '1.1rem', color: 'var(--color-muted)' }}>/ 10</span>
+                  {resultData.totalScore} <span style={{ fontSize: '1.1rem', color: 'var(--color-muted)' }}>/ 27</span>
                 </div>
               </div>
             </div>
 
-            {/* Status Klinis & Alur Sistem */}
+            {/* Sub-skor Breakdown Box */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '12px',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                background: '#F8FAFC',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', fontWeight: 600 }}>
+                    A1. Skor Gejala
+                  </span>
+                  <strong style={{ fontSize: '1.1rem', color: 'var(--color-navy)' }}>
+                    {resultData.gejalaScore} <span style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>/ 14</span>
+                  </strong>
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>Maks. 14 poin</span>
+              </div>
+
+              <div style={{
+                background: '#F8FAFC',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '1px solid #E2E8F0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block', fontWeight: 600 }}>
+                    A2. Skor Faktor Risiko
+                  </span>
+                  <strong style={{ fontSize: '1.1rem', color: 'var(--color-navy)' }}>
+                    {resultData.faktorScore} <span style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>/ 13</span>
+                  </strong>
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>Maks. 13 poin</span>
+              </div>
+            </div>
+
+            {/* Status Klinis & Tindak Lanjut Sesuai Standar */}
             <div style={{ marginBottom: '24px' }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-navy)', marginBottom: '8px' }}>
-                Status Klinis &amp; Alur Sistem:
+                Tindak Lanjut Klinis Berdasarkan Skor:
               </h4>
               <p style={{
                 margin: 0,
@@ -680,7 +610,15 @@ export default function SkriningRisiko({ isDashboard = false, onNavigateToTicket
                 borderRadius: '10px',
                 borderLeft: `4px solid ${resultData.riskCategory === 'Tinggi' ? '#DC2626' : resultData.riskCategory === 'Sedang' ? '#D97706' : '#0F766E'}`
               }}>
-                {resultData.referralReason}
+                <strong>
+                  {resultData.riskCategory === 'Tinggi' && 'Rujukan prioritas untuk tes dan evaluasi pengobatan.'}
+                  {resultData.riskCategory === 'Sedang' && 'Anjuran periksa ke faskes, rujukan tes.'}
+                  {resultData.riskCategory === 'Rendah' && 'Edukasi pencegahan, skrining ulang berkala.'}
+                </strong>
+                <br />
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>
+                  {resultData.referralReason}
+                </span>
               </p>
             </div>
 

@@ -845,7 +845,7 @@ export default function DashboardPetugas() {
                         background: c.kategoriRisiko === 'Tinggi' ? '#FEE2E2' : c.kategoriRisiko === 'Sedang' ? '#FEF3C7' : '#D1FAE5',
                         color: c.kategoriRisiko === 'Tinggi' ? '#991B1B' : c.kategoriRisiko === 'Sedang' ? '#92400E' : '#065F46'
                       }}>
-                        {c.kategoriRisiko} ({c.skor} Poin)
+                        {c.kategoriRisiko} (Skor: {c.skor}/27)
                       </span>
                     </td>
                     <td style={{ padding: '12px 14px', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
@@ -1065,7 +1065,7 @@ export default function DashboardPetugas() {
                 NIK: {selectedContactModal.nik} • Usia: {selectedContactModal.age} th ({selectedContactModal.jk})
               </div>
               <div style={{ marginTop: '6px', fontWeight: 700, color: 'var(--color-primary)' }}>
-                Skor Skrining: {selectedContactModal.skor}/10 ({selectedContactModal.kategoriRisiko})
+                Skor Skrining: {selectedContactModal.skor}/27 ({selectedContactModal.kategoriRisiko})
               </div>
             </div>
 

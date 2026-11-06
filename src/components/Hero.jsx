@@ -8,7 +8,8 @@ import {
   Building2,
   FileText,
   Lock,
-  Heart
+  Heart,
+  User
 } from 'lucide-react';
 import { useTBShield } from '../context/TBShieldContext';
 
@@ -79,13 +80,14 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
               Teleskrining risiko epidemiologis dari rumah, teletriase akustik batuk berbasis AI, imunonutrisi pangan lokal (kelor, ikan kembung, jamur, telur), dan sinkronisasi tiket rujukan digital ke FKTP P-Care BPJS Kesehatan.
             </p>
 
-            {/* Tombol Masuk / Daftar khusus Mobile <= 425px (menggantikan tombol header) */}
+            {/* Tombol Masuk / Daftar khusus Mobile (pindah dari header navbar) */}
             <div className="hero-mobile-auth-wrapper">
               <button
                 onClick={handleMobileAuthClick}
                 className="hero-btn-mobile-auth"
               >
-                {currentUser ? `Buka Dasbor ${currentUser.role === 'staff' ? 'Petugas' : 'Saya'} →` : 'Masuk / Daftar'}
+                <User size={18} style={{ marginRight: '8px' }} />
+                {currentUser ? `Buka Dasbor ${currentUser.role === 'staff' ? 'Petugas' : 'Saya'} →` : 'Masuk / Daftar Akun'}
               </button>
             </div>
 
@@ -93,10 +95,10 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
             <div className="hero-micro-stats">
               <div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-navy)', fontFamily: 'var(--font-mono)' }}>
-                  0 – 10
+                  15 Soal
                 </div>
                 <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)', fontWeight: 600 }}>
-                  Skoring Risiko Usulan
+                  Skrining Risiko Presisi
                 </div>
               </div>
               <div>
@@ -202,7 +204,7 @@ export default function Hero({ onOpenAuth, onStartScreening }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '18px' }}>
                 <div style={{ background: '#F8FAFC', padding: '10px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)', display: 'block' }}>Skor Risiko</span>
-                  <strong style={{ fontSize: '1.05rem', color: 'var(--color-navy)' }}>2 / 10</strong>
+                  <strong style={{ fontSize: '1.05rem', color: 'var(--color-navy)' }}>3 / 27</strong>
                 </div>
                 <div style={{ background: '#F8FAFC', padding: '10px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)', display: 'block' }}>Indeks IMT</span>

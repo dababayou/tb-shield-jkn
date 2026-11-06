@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TB-Shield JKN · Prototipe</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF7F4;--card:#fff;--ink:#0B2E26;--mut:#4B6A62;--teal:#0F766E;--mint:#D5F0E6;--deep:#0B3D2E;--coral:#E8472F;--line:#CFE3DB;--warn:#F6B73C;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0A1A16;--card:#12291F;--ink:#E4F4EE;--mut:#9DBFB4;--mint:#16372C;--line:#244638;--teal:#2DB5A6}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3{margin:0;line-height:1.2}h3{font-size:16px;margin:12px 0 6px}button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+header{padding:18px 20px 6px;max-width:1100px;margin:auto}header h1{font-size:26px;font-weight:800}header p{margin:4px 0 0;color:var(--mut)}
+.app,#login{display:none}body[data-v=login] #login,body[data-v=u] #uApp,body[data-v=p] #pApp{display:block}
+.lg{max-width:780px;margin:10px auto 24px;padding:0 20px}.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.rl{display:flex;gap:8px;margin:10px 0}.rl button{flex:1;padding:10px;border:1.5px solid var(--line);border-radius:10px;background:none;color:var(--ink);font-weight:700}.rl button[aria-pressed=true]{border-color:var(--teal);background:var(--mint)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}@media(max-width:620px){.g2{grid-template-columns:1fr}}
+label.f{display:block;font-weight:600;font-size:14px;margin-top:6px}label.f small{font-weight:400;color:var(--mut)}
+input[type=text],input[type=password],input[type=number],input[type=date],select{width:100%;padding:9px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;margin:4px 0}
+.ck{display:flex;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin:5px 0;cursor:pointer;align-items:flex-start}.ck input{margin-top:4px}
+.btn{background:var(--teal);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:700}.btn:disabled{opacity:.5;cursor:not-allowed}.btn.c{background:var(--coral)}
+.out{border:1.5px solid var(--teal);background:none;color:var(--teal);border-radius:20px;padding:5px 14px;font-weight:700}
+.bar2{max-width:1100px;margin:0 auto;padding:6px 20px 8px;display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:600;flex-wrap:wrap}
+.ph{max-width:520px;margin:0 auto 12px;background:var(--card);border:1px solid var(--line);border-radius:22px;height:min(78vh,760px);min-height:520px;display:flex;flex-direction:column;overflow:hidden}
+.top{background:var(--teal);color:#fff;padding:12px 14px;display:flex;gap:10px;align-items:center}.top small{opacity:.9;display:block}
+.av{width:36px;height:36px;border-radius:50%;background:var(--mint);color:var(--deep);display:grid;place-items:center;font-weight:800}
+.pg{flex:1;overflow:auto;padding:14px;display:none}.pg.on{display:block}#pgA.on{display:flex;flex-direction:column;padding:0}
+#log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--mint)}
+.m{max-width:88%;padding:8px 11px;border-radius:12px;background:var(--card);border-top-left-radius:2px;white-space:pre-wrap}
+.m.u{align-self:flex-end;background:#BDEBD6;color:#0B2E26;border-top-left-radius:12px;border-top-right-radius:2px}
+.m.al{background:var(--coral);color:#fff;font-weight:600;border:3px solid #fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
+.q{border:1.5px solid var(--teal);color:var(--teal);background:transparent;border-radius:20px;padding:5px 11px;font-weight:600;font-size:14px}.q:hover{background:var(--teal);color:#fff}
+.inp{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}.inp input{margin:0}
+.nav{display:flex;border-top:1px solid var(--line)}.nav button{flex:1;border:0;background:none;padding:10px 2px;color:var(--mut);font-weight:600;font-size:13px}
+.nav button[aria-selected=true]{color:var(--teal);box-shadow:inset 0 3px var(--teal)}
+.lv{padding:10px 12px;border-radius:10px;font-weight:700;margin:8px 0}.lv.r{background:#D8F5E6;color:#0B4A2E}.lv.s{background:#FFF0C7;color:#6B4A00}.lv.t{background:var(--coral);color:#fff}
+.note{background:#FFF4D6;color:#5A4200;border-left:5px solid var(--warn);padding:9px 12px;border-radius:8px;margin:10px 0;font-size:14px}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0}details.card summary{font-weight:700;cursor:pointer}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;background:var(--mint);font-size:12px;margin:2px 3px 0 0;font-weight:600}
+canvas{width:100%;height:70px;background:var(--deep);border-radius:10px;display:block}
+.code{font:800 44px/1 ui-monospace,Menlo,monospace;letter-spacing:.2em;text-align:center;margin:8px 0;color:var(--teal)}.bc{background:#fff;border-radius:8px;padding:8px;text-align:center}.bc svg{max-width:100%}
+.pm{max-width:1100px;margin:0 auto;padding:6px 20px 18px}
+.kpi{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}.kpi div{flex:1;min-width:130px;background:var(--mint);border-radius:10px;padding:10px}.kpi strong{font-size:24px;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}.tw{overflow-x:auto}
+tr.al td{background:#FDE3DD;color:#7A1A0B;font-weight:700}.pill{padding:2px 9px;border-radius:12px;font-weight:700;font-size:12px}.pill.r{background:#D8F5E6;color:#0B4A2E}.pill.s{background:#FFF0C7;color:#6B4A00}.pill.t{background:var(--coral);color:#fff}
+#toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top,0px));background:var(--deep);color:#fff;padding:10px 16px;border-radius:12px;z-index:9;display:none;max-width:90vw;font-weight:600}
+.sf{padding:10px 20px 18px;text-align:center;font-size:13px;color:var(--mut)}.sf b{background:var(--deep);color:#CFF3E3;padding:6px 12px;border-radius:20px;display:inline-block}
+svg.il{width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body data-v="login">
+<header><h1>TB-Shield JKN</h1><p>Prototipe pendampingan kontak erat TBC. Masuk sebagai kontak erat atau petugas FKTP.</p></header>
+<div id="toast" role="status"></div>
+
+<section id="login" class="lg"><div class="box">
+<div class="rl"><button id="ru" aria-pressed="true">Kontak erat / pasien</button><button id="rp" aria-pressed="false">Petugas FKTP</button></div>
+<div id="fu"><h2>Daftar dan sinkronkan dengan JKN</h2>
+<p style="color:var(--mut);margin:4px 0 8px">Wilayah dan FKTP dipilih dari daftar agar tidak salah ketik. Data contoh wilayah; sistem nyata memakai referensi wilayah resmi dan FKTP dari data peserta JKN. Data hanya di memori halaman.</p>
+<label class="f">Nama lengkap <small>(sesuai KTP)</small><input type="text" id="nm" autocomplete="off"></label>
+<div class="g2"><label class="f">NIK <small>(16 digit)</small><input type="text" id="rn" inputmode="numeric" maxlength="16" autocomplete="off"></label>
+<label class="f">Nomor kartu BPJS <small>(13 digit)</small><input type="text" id="bp" inputmode="numeric" maxlength="13" autocomplete="off"></label>
+<label class="f">Tanggal lahir<input type="date" id="tl"></label>
+<label class="f">Jenis kelamin<select id="jk"><option>Laki-laki</option><option>Perempuan</option></select></label>
+<label class="f">Provinsi<select id="pv"></select></label><label class="f">Kabupaten/Kota<select id="kb"></select></label>
+<label class="f">Kecamatan<select id="kc"></select></label><label class="f">Kelurahan/Desa<select id="kl"></select></label>
+<label class="f">RW<select id="rw"></select></label><label class="f">RT<select id="rt"></select></label>
+<label class="f">FKTP terdaftar di JKN <small>(otomatis dari data peserta, simulasi)</small><select id="fk"></select></label>
+<label class="f">Hubungan dengan pasien TBC<select id="hb"><option>Serumah dengan pasien</option><option>Kontak dekat (tetangga/rekan kerja)</option><option>Pasien TBC</option></select></label></div>
+<label class="ck"><input type="checkbox" id="c1"><span>Saya menyatakan data benar dan setuju (explicit informed consent) data saya dipakai untuk verifikasi JKN dan rujukan TBC sesuai UU PDP.</span></label>
+<button class="btn" id="du">Daftar dan verifikasi ke JKN</button></div>
+<div id="fs" style="display:none"><h2>Masuk petugas FKTP</h2>
+<p style="color:var(--mut);margin:4px 0 8px">Wilayah kerja ditetapkan dari akun, bukan dipilih sendiri. Petugas hanya melihat kontak yang terdaftar di FKTP-nya. Tiga kali gagal mengunci akun 30 detik; sesi berakhir otomatis setelah 5 menit tanpa aktivitas.</p>
+<div id="s1"><label class="f">Kode petugas<input type="text" id="sk" autocomplete="off"></label><label class="f">PIN (6 digit)<input type="password" id="sp" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+<button class="btn" id="s1b" style="margin-top:8px">Lanjut ke verifikasi OTP</button>
+<div class="note">Akun demo: <b>TNG-01</b> / PIN <b>482913</b> (Puskesmas Tenggilis) dan <b>GBG-01</b> / PIN <b>715204</b> (Puskesmas Gubeng). Sistem nyata memakai SSO instansi dan OTP ke perangkat petugas.</div></div>
+<div id="s2" style="display:none"><label class="f">Kode OTP (6 digit)<input type="text" id="so" inputmode="numeric" maxlength="6" autocomplete="off"></label><button class="btn" id="s2b" style="margin-top:8px">Masuk dasbor</button></div></div>
+<div id="le" style="font-weight:600;margin-top:8px" aria-live="polite"></div></div></section>
+
+<div id="uApp" class="app"><div class="bar2"><span id="who"></span><button class="out" data-lo>Keluar</button></div>
+<div class="ph"><div class="top"><div class="av" id="av">TS</div><div><b id="hn">TB-Shield</b><small id="hs">peserta JKN terverifikasi (simulasi)</small></div></div>
+<div class="pg on" id="pgA"><div id="log" role="log" aria-live="polite"></div><div class="chips" id="chips"></div>
+<div class="inp"><input type="text" id="qi" placeholder="Tanya apa saja seputar TBC, TPT, gizi, rumah sehat…" aria-label="Pertanyaan"><button class="btn" id="qs">Kirim</button></div></div>
+<div class="pg" id="pgS"><h3 style="margin-top:0">Skrining mandiri</h3><p style="color:var(--mut);margin:0 0 6px">Centang yang kamu alami atau miliki saat ini.</p>
+<b>Keluhan</b><div id="sg"></div><b>Faktor risiko</b><div id="sh"></div>
+<h3>Rekam batuk (opsional)</h3><canvas id="cv" width="600" height="70"></canvas><button class="btn" id="rec" style="margin-top:8px">Rekam 3 detik (simulasi)</button><div id="ar"></div>
+<div class="note">Penapis awal, bukan diagnosis. Rekaman di prototipe ini simulasi tanpa mikrofon.</div>
+<button class="btn" id="sr">Lihat hasil skrining</button><div id="sres" aria-live="polite"></div></div>
+<div class="pg" id="pgG"><h3 style="margin-top:0">Kalkulator IMT</h3><div class="g2"><label class="f">Usia (tahun)<input type="number" id="ua" min="1" max="110"></label><label class="f">Jenis kelamin<select id="ug"><option>Laki-laki</option><option>Perempuan</option></select></label>
+<label class="f">Berat (kg)<input type="number" id="bb" min="2" max="250"></label><label class="f">Tinggi (cm)<input type="number" id="tb" min="40" max="230"></label></div>
+<button class="btn" id="bmiB" style="margin-top:6px">Hitung IMT</button><div id="bmiR"></div>
+<h3>Resep imunonutrisi pangan lokal</h3><p style="color:var(--mut);margin:0">Ketuk resep untuk melihat bahan dan cara memasak.</p>
+<details class="card"><summary>Telur orak daun kelor</summary><span class="tag">Protein</span><span class="tag">Zinc</span><span class="tag">L-Arginine</span><p><b>Bahan:</b> 2 butir telur, 1 genggam daun kelor, 2 siung bawang putih, 1 sdt minyak, garam secukupnya.</p><ol><li>Petik daun kelor, cuci bersih.</li><li>Kocok telur dengan garam.</li><li>Tumis bawang putih, masukkan daun kelor sebentar (±1 menit).</li><li>Tuang telur, aduk hingga matang.</li></ol></details>
+<details class="card"><summary>Bubur ikan kembung + tepung ikan</summary><span class="tag">Protein</span><span class="tag">Vitamin D3</span><span class="tag">L-Arginine</span><p><b>Bahan:</b> 1 cangkir nasi, 2 cangkir air, 1 sdm tepung ikan kembung, wortel cincang, bawang goreng, garam.</p><ol><li>Masak nasi dengan air dan wortel hingga lembek.</li><li>Masukkan tepung ikan, aduk rata.</li><li>Beri garam, taburi bawang goreng. Cocok untuk lansia dan anak.</li></ol></details>
+<details class="card"><summary>Tumis jamur + telur rebus</summary><span class="tag">Vitamin D3</span><span class="tag">Protein</span><span class="tag">Zinc</span><p><b>Bahan:</b> 200 g jamur tiram, 2 telur, bawang merah, bawang putih, cabai (opsional), kecap, minyak.</p><ol><li>Rebus telur hingga matang (±10 menit), kupas.</li><li>Tumis bawang hingga harum, masukkan jamur.</li><li>Tambahkan kecap dan garam, masak hingga layu.</li><li>Sajikan dengan telur.</li></ol></details>
+<div class="note">Pendamping TPT, bukan pengganti. Uji RATIONS menilai paket bantuan pangan secara keseluruhan, bukan menu ini secara khusus.</div></div>
+<div class="pg" id="pgR"><h3 style="margin-top:0">Udara dan cahaya di rumah</h3>
+<svg class="il" viewBox="0 0 320 130" role="img" aria-label="Perbandingan ventilasi"><rect x="10" y="20" width="140" height="90" fill="none" stroke="#0F766E" stroke-width="3"/><rect x="6" y="45" width="8" height="40" fill="#2DB5A6"/><rect x="146" y="45" width="8" height="40" fill="#2DB5A6"/><path d="M0 65h40M110 65h50" stroke="#0F766E" stroke-width="3" stroke-dasharray="6 4"/><text x="80" y="125" text-anchor="middle" font-size="11" fill="currentColor">Cukup: jendela berseberangan terbuka</text><rect x="180" y="20" width="140" height="90" fill="none" stroke="#E8472F" stroke-width="3"/><rect x="176" y="45" width="8" height="40" fill="#888"/><text x="250" y="70" text-anchor="middle" font-size="11" fill="currentColor">tertutup, udara mengendap</text><text x="250" y="125" text-anchor="middle" font-size="11" fill="currentColor">Kurang: ruang tertutup</text></svg>
+<div class="card"><b>Pengurasan udara (air flushing)</b><br><small>Buka jendela dan pintu berseberangan minimal 15–30 menit, 2–3 kali sehari. Panduan umum edukasi; ikuti arahan petugas.</small></div>
+<svg class="il" viewBox="0 0 320 130" role="img" aria-label="Perbandingan pencahayaan"><rect x="10" y="20" width="140" height="90" fill="#FFF7DA" stroke="#0F766E" stroke-width="3"/><rect x="10" y="30" width="6" height="40" fill="#F6B73C"/><polygon points="16,30 16,70 110,110 70,110" fill="#F6B73C" opacity=".45"/><text x="80" y="125" text-anchor="middle" font-size="11" fill="currentColor">Cukup: sinar masuk sampai lantai</text><rect x="180" y="20" width="140" height="90" fill="#9AA5A1" opacity=".5" stroke="#E8472F" stroke-width="3"/><rect x="180" y="30" width="6" height="40" fill="#666"/><text x="250" y="70" text-anchor="middle" font-size="11" fill="currentColor">gelap, lembap</text><text x="250" y="125" text-anchor="middle" font-size="11" fill="currentColor">Kurang: tanpa cahaya alami</text></svg>
+<div class="card"><b>Sinar matahari</b><br><small>Ruangan cukup terang bila siang hari kamu bisa membaca tanpa lampu. Jemur kasur, bantal, dan karpet di bawah matahari langsung secara rutin. Ventilasi permanen ideal sekitar 10% luas lantai (cek pedoman rumah sehat).</small></div></div>
+<div class="pg" id="pgT"><h3 style="margin-top:0">Tiket rujukan JKN</h3><div id="tkv"></div></div>
+<div class="nav" role="tablist"><button role="tab" aria-selected="true" data-p="pgA">Asisten</button><button role="tab" aria-selected="false" data-p="pgS">Skrining</button><button role="tab" aria-selected="false" data-p="pgG">Gizi</button><button role="tab" aria-selected="false" data-p="pgR">Rumah</button><button role="tab" aria-selected="false" data-p="pgT">Tiket</button></div></div></div>
+
+<div id="pApp" class="app"><div class="bar2"><span id="pw"></span><span id="tm"></span><button class="out" data-lo>Keluar</button></div>
+<main class="pm"><div class="kpi" id="kp"></div>
+<div class="box"><h3 style="margin-top:0">Verifikasi tiket di loket</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="sc" maxlength="4" placeholder="Scan barcode / ketik kode 4 karakter" style="flex:1;min-width:200px;text-transform:uppercase" aria-label="Kode tiket"><button class="btn" id="scb">Verifikasi</button></div><div id="scr" aria-live="polite"></div></div>
+<div class="box" style="margin-top:12px"><h3 style="margin-top:0">Kontak di wilayah FKTP Anda</h3><div class="tw"><table><thead><tr><th>Nama lengkap</th><th>Wilayah</th><th>Status</th><th>Risiko</th><th></th></tr></thead><tbody id="tr"></tbody></table></div><div id="dt"></div></div>
+<div class="box" style="margin-top:12px"><h3 style="margin-top:0">Log audit akses</h3><div id="au"></div></div></main></div>
+<div class="sf"><b>🔒 Terenkripsi AES-256 · Anonimisasi Data · Kepatuhan UU PDP No. 27/2022 &amp; HIPAA Standard</b><br>Prototipe simulasi. Keamanan di atas adalah rancangan target, bukan fitur yang sudah berjalan.</div>
+<script>
+const $=s=>document.querySelector(s),E=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const REG={"Jawa Timur":{"Kota Surabaya":{"Tenggilis Mejoyo":{kl:["Kendangsari","Kutisari","Panjang Jiwo","Tenggilis Mejoyo"],fk:["Puskesmas Tenggilis"]},"Gubeng":{kl:["Airlangga","Gubeng","Kertajaya","Pucang Sewu"],fk:["Puskesmas Gubeng","Puskesmas Pucang Sewu"]},"Rungkut":{kl:["Kali Rungkut","Medokan Ayu","Rungkut Kidul"],fk:["Puskesmas Kali Rungkut","Puskesmas Medokan Ayu"]}},"Kota Malang":{"Klojen":{kl:["Klojen","Rampal Celaket","Samaan"],fk:["Puskesmas Klojen","Puskesmas Rampal Celaket"]},"Lowokwaru":{kl:["Dinoyo","Merjosari","Tlogomas"],fk:["Puskesmas Dinoyo","Puskesmas Mojolangu"]}}}};
+const IT=[["Batuk berdahak ≥ 2 minggu",3,1],["Batuk darah",3,1],["Demam/meriang > 1 bulan",2],["Keringat malam",2],["Berat badan turun",2],["Sesak napas/nyeri dada",1],["Lemas",1],["Kontak serumah/dekat",3],["Pernah sakit TB",2],["HIV",2],["Diabetes Mellitus",2],["Merokok",1],["Kurang gizi/IMT rendah",1],["Hunian padat/ventilasi buruk",1],["Usia ≥60 th atau anak <5 th",1]];
+const NG=7,MAX=IT.reduce((a,x)=>a+x[1],0),LB={r:"Rendah",s:"Sedang",t:"Tinggi"};
+function its(c){const s=new Set(c.items);if(c.low)s.add(12);if(c.age>=60||c.age<5)s.add(14);return[...s]}
+function sc(c){let t=0,k=0;its(c).forEach(i=>{t+=IT[i][1];if(IT[i][2])k=1});return{t,lv:(t>=9||k)?"t":t>=4?"s":"r"}}
+const S={me:null,staff:null,streak:6,chat:[]},AU=[];
+const CONT=[{nama:"Siti Rahayu",jk:"Perempuan",age:34,nik:"3578010101900021",bp:"0001234567890",kel:"Kendangsari",rw:"03",rt:"05",fk:"Puskesmas Tenggilis",items:[3,7],status:"Terdaftar"},
+{nama:"Agus Prasetyo",jk:"Laki-laki",age:47,nik:"3578010202780033",bp:"0001234567891",kel:"Kutisari",rw:"02",rt:"01",fk:"Puskesmas Tenggilis",items:[0,1,7,9],status:"Rujukan terbit",ticket:"H4MK"},
+{nama:"Dewi Lestari",jk:"Perempuan",age:29,nik:"3578010303950044",bp:"0001234567892",kel:"Airlangga",rw:"04",rt:"02",fk:"Puskesmas Gubeng",items:[8],status:"Terdaftar"},
+{nama:"Hendra Wijaya",jk:"Laki-laki",age:52,nik:"3578010404720055",bp:"0001234567893",kel:"Gubeng",rw:"01",rt:"03",fk:"Puskesmas Gubeng",items:[3,4,7,10],status:"Rujukan terbit",ticket:"R7TP"}];
+const mk=s=>s.slice(0,4)+"•".repeat(Math.max(0,s.length-8))+s.slice(-4);
+const aud=(fk,t)=>AU.unshift({fk,t:new Date().toLocaleTimeString("id-ID"),x:t});
+let tt;function toast(m,ms=5000){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(tt);tt=setTimeout(()=>t.style.display="none",ms)}
+const er=m=>{$("#le").style.color=m?"var(--coral)":"var(--teal)";$("#le").textContent=m||""};
+/* wilayah berjenjang */
+function fill(id,a,ph){const s=$(id);s.innerHTML=(ph?`<option value="">${ph}</option>`:"")+a.map(x=>`<option>${x}</option>`).join("");s.disabled=!a.length}
+fill("#pv",Object.keys(REG),"Pilih provinsi");fill("#kb",[],"Pilih kabupaten/kota");fill("#kc",[],"Pilih kecamatan");fill("#kl",[],"Pilih kelurahan");fill("#fk",[],"Dipilih setelah kecamatan");
+fill("#rw",Array.from({length:12},(_,i)=>String(i+1).padStart(2,"0")),"RW");fill("#rt",Array.from({length:15},(_,i)=>String(i+1).padStart(2,"0")),"RT");
+$("#pv").onchange=()=>{fill("#kb",$("#pv").value?Object.keys(REG[$("#pv").value]):[],"Pilih kabupaten/kota");$("#kb").onchange()};
+$("#kb").onchange=()=>{const p=$("#pv").value,k=$("#kb").value;fill("#kc",k?Object.keys(REG[p][k]):[],"Pilih kecamatan");$("#kc").onchange()};
+$("#kc").onchange=()=>{const d=($("#kc").value&&REG[$("#pv").value][$("#kb").value][$("#kc").value])||null;fill("#kl",d?d.kl:[],"Pilih kelurahan");fill("#fk",d?d.fk:[],"Dipilih setelah kecamatan")};
+/* login */
+function setR(r){$("#ru").setAttribute("aria-pressed",r=="u");$("#rp").setAttribute("aria-pressed",r=="p");$("#fu").style.display=r=="u"?"block":"none";$("#fs").style.display=r=="p"?"block":"none";er("")}
+$("#ru").onclick=()=>setR("u");$("#rp").onclick=()=>setR("p");
+$("#du").onclick=()=>{const v=i=>$("#"+i).value.trim();let m="";
+if(v("nm").length<3)m="Nama lengkap minimal 3 huruf.";else if(!/^\d{16}$/.test(v("rn")))m="NIK harus 16 digit angka.";else if(!/^\d{13}$/.test(v("bp")))m="Nomor kartu BPJS harus 13 digit angka.";
+else if(!v("tl")||new Date(v("tl"))>new Date())m="Pilih tanggal lahir yang valid.";else if(!v("pv")||!v("kb")||!v("kc")||!v("kl")||!v("rw")||!v("rt"))m="Pilih provinsi sampai RT dari daftar.";else if(!v("fk"))m="Pilih FKTP.";else if(!$("#c1").checked)m="Centang persetujuan terlebih dahulu.";
+er(m);if(m)return;const age=Math.floor((Date.now()-new Date(v("tl")))/31557600000);
+S.me={nama:v("nm"),nik:v("rn"),bp:v("bp"),jk:v("jk"),age,kel:v("kl"),rw:v("rw"),rt:v("rt"),fk:v("fk"),hb:v("hb"),items:[],status:"Terdaftar"};CONT.push(S.me);
+$("#le").style.color="var(--teal)";$("#le").textContent="Memverifikasi kepesertaan JKN dan FKTP terdaftar (simulasi)…";setTimeout(()=>{er("");enterU()},1200)};
+let fail=0,lock=0,otp="",pend=null;
+$("#s1b").onclick=()=>{if(Date.now()<lock)return er("Akun terkunci. Coba lagi dalam "+Math.ceil((lock-Date.now())/1000)+" detik.");
+const A={"TNG-01":{pin:"482913",nama:"Kader Tenggilis",fk:"Puskesmas Tenggilis"},"GBG-01":{pin:"715204",nama:"Petugas Gubeng",fk:"Puskesmas Gubeng"}},a=A[$("#sk").value.trim().toUpperCase()];
+if(!a||a.pin!==$("#sp").value){fail++;if(fail>=3){fail=0;lock=Date.now()+30000;return er("3 kali gagal. Akun dikunci 30 detik.")}return er("Kode atau PIN salah. Sisa percobaan: "+(3-fail))}
+fail=0;pend=a;otp=String(Math.floor(1e5+Math.random()*9e5));er("");$("#s1").style.display="none";$("#s2").style.display="block";toast("OTP demo: "+otp+" (sistem nyata mengirim ke perangkat petugas)",20000)};
+$("#s2b").onclick=()=>{if($("#so").value!==otp)return er("OTP salah.");S.staff=pend;toast("");enterP()};
+/* sesi */
+let idle;function arm(){clearTimeout(idle);if(document.body.dataset.v=="p")idle=setTimeout(()=>{logout();toast("Sesi berakhir karena 5 menit tanpa aktivitas.")},3e5)}
+["click","keydown"].forEach(e=>addEventListener(e,arm));
+function logout(){clearTimeout(idle);document.body.dataset.v="login";S.staff=null;$("#s1").style.display="block";$("#s2").style.display="none";$("#sp").value="";$("#so").value="";window.scrollTo(0,0)}
+document.querySelectorAll("[data-lo]").forEach(b=>b.onclick=()=>{if(document.body.dataset.v=="p"){aud(S.staff.fk,S.staff.nama+" keluar")}logout()});
+/* nav pengguna */
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav button").forEach(x=>x.setAttribute("aria-selected",x==b));document.querySelectorAll(".pg").forEach(p=>p.classList.toggle("on",p.id==b.dataset.p));if(b.dataset.p=="pgT")tkt()});
+function enterU(){const m=S.me;document.body.dataset.v="u";$("#who").textContent=m.nama+" · "+m.fk;$("#hn").textContent=m.nama;$("#av").textContent=m.nama.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+$("#hs").textContent="peserta JKN terverifikasi (simulasi)";$("#ua").value=m.age;$("#ug").value=m.jk;
+if(!$("#log").children.length){bot("Halo "+m.nama.split(" ")[0]+" 👋 Saya asisten edukasi TBC. Tanyakan apa saja, atau pilih salah satu pertanyaan di bawah.");chips()}window.scrollTo(0,0)}
+/* chat AI */
+const QS=["Apa beda infeksi TBC laten dan TBC aktif?","Kenapa harus minum TPT kalau saya merasa sehat?","Apa saja efek samping obat TPT?","Makanan lokal apa yang baik untuk daya tahan tubuh?","Bagaimana menghadapi tetangga yang menjauhi keluarga kami?","Kapan saya harus segera ke Puskesmas?","Apakah TBC bisa menular lewat piring makan?"];
+const FAQ=[[/laten/i,"TBC laten: kuman ada di tubuh tetapi tidak aktif, tanpa gejala dan tidak menular. TBC aktif: kuman berkembang, bergejala, dan bisa menular. Laten bisa menjadi aktif saat daya tahan turun, karena itu ada TPT."],[/efek|samping/i,"Efek samping bisa berupa mual atau ruam ringan. Tanda bahaya seperti mata/kulit menguning, urine pekat, atau muntah terus-menerus: hentikan dosis berikutnya dan segera hubungi Puskesmas."],[/piring|makan bersama|gelas/i,"TBC menular lewat udara saat orang dengan TBC aktif batuk, bukan lewat piring atau gelas."],[/stigma|tetangga|jauh/i,"TBC bisa disembuhkan dan tidak menular lewat sentuhan atau barang. Ajak tetangga berbicara dengan tenang dan sampaikan faktanya; petugas Puskesmas bisa membantu edukasi."]];
+const INSTR=()=>"Kamu asisten edukasi TB-Shield JKN untuk kontak erat pasien TBC di Indonesia. Jawab dalam bahasa Indonesia yang ramah dan sederhana, maksimal 120 kata. Cakupan: TBC, infeksi laten, TPT, efek samping, gizi pangan lokal, ventilasi dan cahaya rumah, stigma. Jangan mendiagnosis dan jangan memberi dosis obat; untuk keluhan serius arahkan segera ke FKTP. Jika di luar topik kesehatan ini, tolak dengan sopan dan arahkan kembali. Pengguna berusia "+S.me.age+" tahun, "+S.me.jk+".";
+function bot(t,c){const m=E("div","m"+(c?" "+c:""));m.textContent=t;$("#log").append(m);$("#log").scrollTop=1e5;return m}
+function usr(t){const m=E("div","m u");m.textContent=t;$("#log").append(m);$("#log").scrollTop=1e5}
+function chips(){const c=$("#chips");c.innerHTML="";[["💊 Sudah minum",drank],["⚠️ Ada keluhan",comp]].forEach(([t,f])=>{const b=E("button","q",t);b.onclick=()=>{usr(t);f()};c.append(b)});
+[...QS].sort(()=>Math.random()-.5).slice(0,3).forEach(q=>{const b=E("button","q",q);b.onclick=()=>ask(q);c.append(b)})}
+function drank(){S.streak++;bot("🔥 "+S.streak+" Hari Beruntun! Kamu mendapatkan Badge Paru Sehat Level 1.\nTerus minum TPT sesuai jadwal.");chips()}
+function alertI(){S.me.alert="Ikterus";S.me.status="Rujuk segera: Ikterus";aud(S.me.fk,"Peringatan keselamatan: "+S.me.nama+" melaporkan mata/kulit menguning");bot("🚨 PATIENT SAFETY ALERT\nJANGAN MINUM DOSIS BERIKUTNYA. Sistem telah mengirimkan notifikasi otomatis ke "+S.me.fk+" untuk evaluasi klinis segera.","al");chips()}
+function comp(){bot("Keluhan apa yang kamu rasakan?");const c=$("#chips");c.innerHTML="";[["Mata/kulit menguning",()=>alertI()],["Mual ringan",()=>{bot("Mual ringan sering terjadi. Minum obat setelah makan dan catat keluhan. Hubungi petugas bila memburuk.");chips()}],["Ruam/gatal",()=>{bot("Laporkan ruam ke petugas FKTP hari ini. Jangan mengubah dosis sendiri.");chips()}],["Tidak ada",chips]].forEach(([t,f])=>{const b=E("button","q",t);b.onclick=()=>{usr(t);f()};c.append(b)})}
+let SMP;async function smp(){if(SMP===undefined){try{SMP=window.claude?await claude.use("sample"):null}catch(e){SMP=null}}return SMP}
+async function ask(q){q=q.trim();if(!q)return;$("#qi").value="";usr(q);S.chat.push({role:"user",content:q});
+if(/(menguning|kuning|ikterus|urin\w*\s+(pekat|gelap)|seperti teh)/i.test(q)){alertI();return}
+const b=bot("…");$("#qs").disabled=true;let out;
+try{const s=await smp();if(!s)throw 0;const h=S.chat.slice(-8).map(x=>({...x}));while(h[0]&&h[0].role!="user")h.shift();h[0].content=INSTR()+"\n\nPertanyaan: "+h[0].content;
+const r=await s(h,{cache:false,modelTier:"quick",onText:({text})=>{b.textContent=text;$("#log").scrollTop=1e5}});out=r.text}
+catch(e){const f=FAQ.find(x=>x[0].test(q));out=(f?f[1]:"Maaf, asisten AI belum bisa dihubungi dan saya belum punya jawaban dasar untuk itu. Coba pilih pertanyaan di bawah atau tanyakan ke petugas FKTP.")+"\n(mode dasar, tanpa AI)"}
+b.textContent=out;S.chat.push({role:"assistant",content:out});$("#qs").disabled=false;chips();$("#log").scrollTop=1e5}
+$("#qs").onclick=()=>ask($("#qi").value);$("#qi").onkeydown=e=>{if(e.key=="Enter")ask($("#qi").value)};
+/* skrining pengguna (tanpa skor) */
+IT.forEach((x,i)=>{const l=E("label","ck",`<input type="checkbox" data-i="${i}"><span>${x[0]}</span>`);(i<NG?$("#sg"):$("#sh")).append(l)});
+const cv=$("#cv"),cx=cv.getContext("2d");let busy=false;function flat(){cx.clearRect(0,0,600,70);cx.fillStyle="#2DB5A6";for(let x=0;x<600;x+=6)cx.fillRect(x,33,3,4)}flat();
+$("#rec").onclick=()=>{if(busy)return;busy=true;$("#ar").innerHTML="";const t0=performance.now();(function f(){const t=(performance.now()-t0)/1000;cx.clearRect(0,0,600,70);cx.fillStyle="#2DB5A6";
+for(let x=0;x<600;x+=6){const a=4+Math.max(0,Math.sin(t*5+x/90))*26*Math.random();cx.fillRect(x,35-a,3,a*2)}$("#rec").textContent="Merekam… "+Math.max(0,3-t).toFixed(1)+" dtk";
+if(t<3)return requestAnimationFrame(f);busy=false;flat();$("#rec").textContent="Rekam ulang";S.me.aco=+(.2+Math.random()*.6).toFixed(2);$("#ar").innerHTML='<div class="lv r">Rekaman diterima. Hasil dibaca bersama skrining oleh petugas.</div>'})()};
+$("#sr").onclick=()=>{const m=S.me;m.items=[...document.querySelectorAll("#pgS [data-i]:checked")].map(x=>+x.dataset.i);const r=sc(m);
+if(m.status=="Terdaftar"||m.status.startsWith("Skrining"))m.status="Skrining selesai";aud(m.fk,m.nama+" menyelesaikan skrining");
+const T={r:["r","Tidak ada tanda bahaya yang menonjol. Tetap pantau gejala dan pelajari edukasi di tab Asisten."],s:["s","Disarankan konseling TPT di FKTP Anda. Aktifkan pengingat harian lewat tab Asisten."],t:["t","Disarankan segera periksa ke FKTP. Buka tab Tiket untuk menerbitkan tiket rujukan."]}[r.lv];
+$("#sres").innerHTML=`<div class="lv ${T[0]}">${T[1]}</div>`};
+/* IMT */
+$("#bmiB").onclick=()=>{const a=+$("#ua").value,w=+$("#bb").value,h=+$("#tb").value/100;if(!(a>0&&w>0&&h>.4))return $("#bmiR").innerHTML='<div class="note">Isi usia, berat, dan tinggi badan dengan benar.</div>';
+const b=w/(h*h),who=`${$("#ug").value}, ${a} tahun, IMT ${b.toFixed(1)}`;if(a<19){return $("#bmiR").innerHTML=`<div class="note">${who}. Untuk anak dan remaja (&lt;19 tahun) IMT dibaca dengan kurva IMT menurut umur (z-skor WHO), bukan batas dewasa. Tanyakan ke petugas gizi.</div>`}
+const low=b<18.5,c=low?"Kurus: faktor risiko reaktivasi TBC. Perkuat asupan protein dan konsultasi ke petugas gizi.":b<25?"Normal. Pertahankan pola makan bergizi.":b<=27?"Berat badan berlebih. Jaga pola makan seimbang.":"Obesitas. Konsultasikan ke petugas gizi.";
+if(S.me)S.me.low=low;$("#bmiR").innerHTML=`<div class="lv ${low?"s":"r"}">${who}: ${c}</div>`};
+/* tiket + barcode (Code 39) */
+const C39={"0":"nnnwwnwnn","1":"wnnwnnnnw","2":"nnwwnnnnw","3":"wnwwnnnnn","4":"nnnwwnnnw","5":"wnnwwnnnn","6":"nnwwwnnnn","7":"nnnwnnwnw","8":"wnnwnnwnn","9":"nnwwnnwnn",A:"wnnnnwnnw",B:"nnwnnwnnw",C:"wnwnnwnnn",D:"nnnnwwnnw",E:"wnnnwwnnn",F:"nnwnwwnnn",G:"nnnnnwwnw",H:"wnnnnwwnn",I:"nnwnnwwnn",J:"nnnnwwwnn",K:"wnnnnnnww",L:"nnwnnnnww",M:"wnwnnnnwn",N:"nnnnwnnww",O:"wnnnwnnwn",P:"nnwnwnnwn",Q:"nnnnnnwww",R:"wnnnnnwwn",S:"nnwnnnwwn",T:"nnnnwnwwn",U:"wwnnnnnnw",V:"nwwnnnnnw",W:"wwwnnnnnn",X:"nwnnwnnnw",Y:"wwnnwnnnn",Z:"nwwnwnnnn","*":"nwnnwnwnn"};
+function bar(code){let x=12,r="";("*"+code+"*").split("").forEach((ch,ci)=>{C39[ch].split("").forEach((w,i)=>{const u=w=="w"?5:2;if(i%2==0)r+=`<rect x="${x}" y="4" width="${u}" height="56" fill="#000"/>`;x+=u});x+=2});
+return`<svg viewBox="0 0 ${x+10} 66" role="img" aria-label="Barcode tiket ${code}" width="${x+10}" height="66">${r}</svg>`}
+function newCode(){const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let c;do{c=Array.from({length:4},()=>A[Math.floor(Math.random()*A.length)]).join("")}while(CONT.some(x=>x.ticket==c));return c}
+function tkt(){const m=S.me,r=sc(m),v=$("#tkv");
+if(m.ticket){v.innerHTML=`<div class="card"><div class="code">${m.ticket}</div><div class="bc">${bar(m.ticket)}</div><p><b>FKTP tujuan:</b> ${m.fk}<br><b>Status:</b> ${m.status}</p><div class="note">Tunjukkan kode atau barcode ini ke petugas saat tiba di FKTP. Petugas memindai tanpa mewawancarai ulang Anda.</div></div>`;return}
+v.innerHTML=r.lv=="t"?`<p>Hasil skrining menyarankan pemeriksaan. Tiket mengirim ringkasan skrining ke <b>${m.fk}</b> melalui API P-Care/SATUSEHAT (simulasi) berdasarkan data JKN Anda: ${m.nama}, NIK ${mk(m.nik)}, BPJS ${mk(m.bp)}.</p><label class="ck"><input type="checkbox" id="tc"><span>Saya setuju data skrining dikirim ke ${m.fk}.</span></label><button class="btn c" id="tg">Terbitkan tiket rujukan</button>`:'<p>Tiket hanya tersedia bila hasil skrining menyarankan pemeriksaan. Selesaikan skrining di tab Skrining.</p>';
+const g=$("#tg");if(g)g.onclick=()=>{if(!$("#tc").checked)return toast("Centang persetujuan dulu.");m.ticket=newCode();m.status="Rujukan terbit";aud(m.fk,"Tiket "+m.ticket+" terbit untuk "+m.nama);tkt()}}
+/* dasbor petugas */
+function enterP(){document.body.dataset.v="p";$("#pw").textContent=S.staff.nama+" · "+S.staff.fk;aud(S.staff.fk,S.staff.nama+" masuk");rp();arm();window.scrollTo(0,0)}
+function rp(){const f=S.staff.fk,cs=CONT.filter(c=>c.fk===f),n=x=>CONT.filter(c=>c.fk===f&&x(c)).length;
+$("#kp").innerHTML=`<div><strong>${cs.length}</strong>kontak terdaftar</div><div><strong>${n(c=>sc(c).lv=="t")}</strong>risiko tinggi</div><div><strong>${n(c=>c.ticket)}</strong>tiket rujukan</div><div><strong>${n(c=>c.alert)}</strong>peringatan aktif</div>`;
+$("#tr").innerHTML="";cs.forEach(c=>{const r=sc(c),tr=E("tr",c.alert?"al":"",`<td>${c.nama}</td><td>Kel. ${c.kel}, RT ${c.rt}/RW ${c.rw}</td><td>${c.status}</td><td><span class="pill ${r.lv}">${LB[r.lv]} · ${r.t}/${MAX}</span></td><td><button class="q">Detail</button></td>`);
+tr.querySelector("button").onclick=()=>det(c);$("#tr").append(tr)});
+$("#au").innerHTML=AU.filter(a=>a.fk===f).slice(0,8).map(a=>`<div><small>${a.t}</small> ${a.x}</div>`).join("")||"Belum ada aktivitas."}
+function det(c){const r=sc(c);aud(S.staff.fk,S.staff.nama+" membuka detail "+c.nama);
+$("#dt").innerHTML=`<div class="card"><h3 style="margin-top:0">${c.nama}</h3><p>${c.jk}, ${c.age} tahun · NIK ${mk(c.nik)} · BPJS ${mk(c.bp)} · Kel. ${c.kel} RT ${c.rt}/RW ${c.rw}${c.aco?" · pola akustik (simulasi) "+c.aco:""}</p>
+<table><thead><tr><th>Item skor</th><th>Poin</th></tr></thead><tbody>${its(c).map(i=>`<tr><td>${IT[i][0]}</td><td>+${IT[i][1]}</td></tr>`).join("")||'<tr><td colspan="2">Belum ada item.</td></tr>'}</tbody><tfoot><tr><th>Total</th><th>${r.t}/${MAX}</th></tr></tfoot></table>
+<p><small>Ambang: 0–3 rendah · 4–8 sedang · ≥9 atau skor 3 pada gejala kardinal = tinggi.</small></p></div>`;rp()}
+$("#scb").onclick=()=>{const k=$("#sc").value.trim().toUpperCase(),c=CONT.find(x=>x.ticket==k),o=$("#scr");
+if(!c){aud(S.staff.fk,"Kode "+k+" tidak ditemukan");rp();return o.innerHTML='<div class="lv s">Kode tidak ditemukan.</div>'}
+if(c.fk!==S.staff.fk){aud(S.staff.fk,"AKSES DITOLAK: kode "+k+" milik FKTP lain");rp();return o.innerHTML='<div class="lv t">Akses ditolak. Tiket ini terdaftar di FKTP lain dan datanya tidak dapat dibuka dari akun Anda.</div>'}
+c.status="Hadir di FKTP";aud(S.staff.fk,"Tiket "+k+" dipindai: "+c.nama+" hadir");o.innerHTML=`<div class="lv r">Tiket valid: ${c.nama} (${c.jk}, ${c.age} th). NIK ${c.nik} · BPJS ${c.bp}. Dicatat hadir.</div>`;rp()};
+</script></body></html>
